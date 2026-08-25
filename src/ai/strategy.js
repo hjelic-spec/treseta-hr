@@ -12,6 +12,13 @@ export function chooseCard(seat, hand, gameState, memory, partnerSignal) {
 
   const isTeamPlay = gameState.config.teamPlay;
 
+  if (gameState.config.uManje) {
+    if (currentTrick.length === 0) {
+      return chooseLeadUManje(seat, legalPlays, hand, memory, gameState);
+    }
+    return chooseFollowUManje(seat, legalPlays, gameState, memory);
+  }
+
   if (currentTrick.length === 0) {
     return chooseLead(seat, legalPlays, hand, memory, isTeamPlay ? partnerSignal : null, gameState);
   }
@@ -191,4 +198,77 @@ function pickLowestValue(cards) {
     if (va !== vb) return va - vb;
     return RANK_POWER[a.rank] - RANK_POWER[b.rank];
   })[0];
+}
+
+function pickHighestValue(cards) {
+  return cards.sort((a, b) => {
+    const va = cardValue(a);
+    const vb = cardValue(b);
+    if (va !== vb) return vb - va;
+    return RANK_POWER[b.rank] - RANK_POWER[a.rank];
+  })[0];
+}
+
+function cardValue(card) {
+  if (card.rank === 1 && card.suit === 'bate') return 33;
+  return CARD_POINTS[card.rank].ponti * 3 + CARD_POINTS[card.rank].terzi;
+}
+
+function chooseLeadUManje(seat, legalPlays, hand, memory, gameState) {
+  const suitGroups = {};
+  for (const c of legalPlays) {
+    if (!suitGroups[c.suit]) suitGroups[c.suit] = [];
+    suitGroups[c.suit].push(c);
+  }
+
+  let bestSuit = null;
+  let bestScore = -Infinity;
+
+  for (const suit of Object.keys(suitGroups)) {
+    const cards = suitGroups[suit];
+    const remaining = memory.getRemainingInSuit(suit);
+    const higherOut = remaining.filter(c =>
+      RANK_POWER[c.rank] > RANK_POWER[cards.sort((a, b) => RANK_POWER[b.rank] - RANK_POWER[a.rank])[0].rank]
+    ).length;
+
+    const score = higherOut * 10 - cards.length * 3 - (isMaster(cards[0], memory, hand) ? 20 : 0);
+    if (score > bestScore) {
+      bestScore = score;
+      bestSuit = suit;
+    }
+  }
+
+  if (bestSuit) {
+    const suitCards = suitGroups[bestSuit];
+    return suitCards.sort((a, b) => RANK_POWER[a.rank] - RANK_POWER[b.rank])[0];
+  }
+
+  return legalPlays.sort((a, b) => RANK_POWER[a.rank] - RANK_POWER[b.rank])[0];
+}
+
+function chooseFollowUManje(seat, legalPlays, gameState, memory) {
+  const { currentTrick, ledSuit } = gameState;
+
+  let currentWinner = currentTrick[0];
+  for (const entry of currentTrick) {
+    if (entry.card.suit === ledSuit && RANK_POWER[entry.card.rank] > RANK_POWER[currentWinner.card.rank]) {
+      currentWinner = entry;
+    }
+  }
+
+  const followingSuit = legalPlays[0]?.suit === ledSuit;
+
+  if (!followingSuit) {
+    return pickHighestValue(legalPlays);
+  }
+
+  const underCards = legalPlays.filter(c =>
+    RANK_POWER[c.rank] < RANK_POWER[currentWinner.card.rank]
+  );
+
+  if (underCards.length > 0) {
+    return pickHighestValue(underCards);
+  }
+
+  return legalPlays.sort((a, b) => RANK_POWER[a.rank] - RANK_POWER[b.rank])[0];
 }
