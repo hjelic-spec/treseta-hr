@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Treseta</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🃏</text></svg>">
+</head>
+<body>
+  <div id="hamburger-menu" class="hamburger-menu">
+    <button class="hamburger-btn" id="hamburger-btn" aria-label="Izbornik">
+      <span></span><span></span><span></span>
+    </button>
+    <button class="back-btn" id="back-btn" aria-label="Natrag" style="display:none;">&#x2190;</button>
+    <div class="menu-drawer" id="menu-drawer">
+      <nav class="menu-nav">
+        <button class="menu-item" data-screen="lobby">Igraj</button>
+        <button class="menu-item" data-screen="pravila">Pravila</button>
+        <button class="menu-item" data-screen="about">O igri</button>
+      </nav>
+    </div>
+    <div class="menu-backdrop" id="menu-backdrop"></div>
+  </div>
+  <div id="app"></div>
+  <script type="module">
+    import { init } from './src/ui/app.js';
+    init();
+  </script>
+</body>
+</html>
