@@ -22,7 +22,7 @@ export function createLobby(onStart) {
           <label class="radio-option">
             <input type="radio" name="variant" value="u_manje">
             <span class="radio-label">Dančarski horor</span>
-            <span class="radio-desc">5 igrača, svak za sebe, do 101 ponat, as bata = 11</span>
+            <span class="radio-desc">5 igrača, svak za sebe, ko manje, do 101 ponat, as bata = 11</span>
           </label>
         </div>
       </div>
