@@ -1,10 +1,5 @@
-import { MESSAGES, SEAT_NAMES } from './locale.js';
+import { MESSAGES, SEAT_NAMES, getSeatName } from './locale.js';
 import { SUIT_DISPLAY, RANK_DISPLAY } from '../core/constants.js';
-
-function seatName(seat, config) {
-  if (config && !config.teamPlay && seat === 'north') return 'Gore';
-  return SEAT_NAMES[seat] || seat;
-}
 
 export function showHandEndOverlay(handScores, totalScores, kapotTeam, lastTrickWinner, config = null) {
   const overlay = document.createElement('div');
@@ -28,7 +23,7 @@ export function showHandEndOverlay(handScores, totalScores, kapotTeam, lastTrick
       <h2>Rezultat ruke</h2>
       <div class="individual-scores">
         ${entries.map(([seat, pts]) => {
-          const name = seatName(seat, config);
+          const name = getSeatName(seat, config);
           const total = totalScores[seat];
           return `<div class="ind-score-row"><span>${name}</span><span>+${pts} (${total})</span></div>`;
         }).join('')}
@@ -60,7 +55,7 @@ export function showGameEndOverlay(data, onPlayAgain) {
       <p class="final-score">${MESSAGES.score(data.finalScores[0], data.finalScores[1])}</p>
     `;
   } else {
-    const winnerName = seatName(data.winnerSeat, data.config);
+    const winnerName = getSeatName(data.winnerSeat, data.config);
     const isMe = data.winnerSeat === 'south';
     const msg = isMe ? 'Pobijedio si!' : `${winnerName} je pobijedio!`;
     const entries = Object.entries(data.finalScores).sort((a, b) => a[1] - b[1]);
@@ -70,7 +65,7 @@ export function showGameEndOverlay(data, onPlayAgain) {
       <h2>${msg}</h2>
       <div class="individual-scores final-individual">
         ${entries.map(([seat, score], i) => {
-          const name = seatName(seat, data.config);
+          const name = getSeatName(seat, data.config);
           const cls = i === 0 ? 'ind-winner' : '';
           return `<div class="ind-score-row ${cls}"><span>${i + 1}. ${name}</span><span>${score}</span></div>`;
         }).join('')}

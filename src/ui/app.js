@@ -1,5 +1,5 @@
 import { GameController } from '../core/game-controller.js';
-import { SEATS, SEATS_5, teamOf, partnerSeat, nextSeat, RANK_DISPLAY, SUIT_DISPLAY, VARIANT_CONFIG } from '../core/constants.js';
+import { SEATS, SEATS_5, VARIANT_CONFIG } from '../core/constants.js';
 import { AIPlayer } from '../ai/ai-player.js';
 import { CardMemory } from '../ai/memory.js';
 import { analyzeHand, rateMove } from '../ai/advisor.js';
@@ -9,9 +9,9 @@ import { renderHand, createPlayedCard, getCardMetrics } from './card-renderer.js
 import { renderCardBackSmall } from './card-sprites.js';
 import { showSignalButtons, hideSignalButtons, showSignalIndicator } from './signal-ui.js';
 import { showHandEndOverlay, showGameEndOverlay, showDeclarations, highlightCurrentPlayer } from './hud.js';
-import { SEAT_NAMES, MESSAGES, SIGNAL_LABELS } from './locale.js';
+import { MESSAGES, getSeatName } from './locale.js';
 import { playCardSound, playTrickWonSound } from './audio.js';
-import { cardId } from '../core/card.js';
+import { cardId, cardDisplayName } from '../core/card.js';
 
 let game = null;
 let aiPlayers = {};
@@ -66,30 +66,14 @@ function wireMenu() {
 
 function navigateTo(screen) {
   if (screen === currentScreen) return;
-  if (screen === 'lobby') {
-    if (game && game.state.phase !== 'game_end') {
-      showConfirmDialog('Napustiti igru?', 'Igra je u tijeku. Želiš li se vratiti u izbornik?', () => {
-        showLobby();
-      });
-    } else {
-      showLobby();
-    }
-  } else if (screen === 'pravila') {
-    if (game && game.state.phase !== 'game_end') {
-      showConfirmDialog('Napustiti igru?', 'Igra je u tijeku. Želiš li se vratiti u izbornik?', () => {
-        showPravila();
-      });
-    } else {
-      showPravila();
-    }
-  } else if (screen === 'about') {
-    if (game && game.state.phase !== 'game_end') {
-      showConfirmDialog('Napustiti igru?', 'Igra je u tijeku. Želiš li se vratiti u izbornik?', () => {
-        showAbout();
-      });
-    } else {
-      showAbout();
-    }
+  const screens = { lobby: showLobby, pravila: showPravila, about: showAbout };
+  const show = screens[screen];
+  if (!show) return;
+
+  if (game && game.state.phase !== 'game_end') {
+    showConfirmDialog('Napustiti igru?', 'Igra je u tijeku. Želiš li se vratiti u izbornik?', show);
+  } else {
+    show();
   }
 }
 
@@ -381,7 +365,7 @@ function wireEvents() {
       area.innerHTML = '';
     }
 
-    const seatLabel = getSeatName(data.seat);
+    const seatLabel = getSeatName(data.seat, game.state.config);
     const cardEl = createPlayedCard(data.card, data.seat, seatLabel);
     area.appendChild(cardEl);
     placePlayedCard(cardEl, data.seat, area, startRect);
@@ -390,7 +374,7 @@ function wireEvents() {
   });
 
   game.on('trick-won', (data) => {
-    const name = getSeatName(data.winner);
+    const name = getSeatName(data.winner, game.state.config);
     showInfo(MESSAGES.trickWon(name), 1200);
     playTrickWonSound();
 
@@ -469,7 +453,8 @@ function renderEWHand(containerId, cards) {
     el.style.top = (i * m.backSpacing) + 'px';
     container.appendChild(el);
   });
-  container.style.height = ((cards.length - 1) * m.backSpacing + 88) + 'px';
+  const backH = m.cardW <= 84 ? 70 : 88;
+  container.style.height = ((cards.length - 1) * m.backSpacing + backH) + 'px';
 }
 
 function doAITurn(seat, trickNumber) {
@@ -587,11 +572,4 @@ function hideMoveRating() {
   }
 }
 
-function getSeatName(seat) {
-  if (game && !game.state.config.teamPlay && seat === 'north') return 'Gore';
-  return SEAT_NAMES[seat] || seat;
-}
 
-function cardDisplayName(card) {
-  return `${RANK_DISPLAY[card.rank]} ${SUIT_DISPLAY[card.suit]}`;
-}

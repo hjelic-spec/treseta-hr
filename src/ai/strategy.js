@@ -1,8 +1,6 @@
-import { RANK_POWER, CARD_POINTS, teamOf, partnerSeat, SUITS, SEATS, SEATS_5 } from '../core/constants.js';
-import { cardPower } from '../core/card.js';
+import { RANK_POWER, CARD_POINTS, teamOf, partnerSeat, SUITS } from '../core/constants.js';
 import { getLegalPlays } from '../core/rules.js';
-
-const TOP_RANKS = [3, 2, 1];
+import { TOP_RANKS, isMaster, getOpponents, pickLowestValue, findCurrentWinner } from './ai-utils.js';
 
 export function chooseCard(seat, hand, gameState, memory, partnerSignal) {
   const { currentTrick, ledSuit } = gameState;
@@ -24,19 +22,6 @@ export function chooseCard(seat, hand, gameState, memory, partnerSignal) {
   }
 
   return chooseFollow(seat, legalPlays, gameState, memory, isTeamPlay ? partnerSignal : null);
-}
-
-function isMaster(card, memory, hand) {
-  const remaining = memory.getRemainingInSuit(card.suit);
-  const allCards = [...remaining, ...hand.filter(c => c.suit === card.suit)];
-  const unique = [];
-  const seen = new Set();
-  for (const c of allCards) {
-    const key = `${c.rank}-${c.suit}`;
-    if (!seen.has(key)) { seen.add(key); unique.push(c); }
-  }
-  unique.sort((a, b) => RANK_POWER[b.rank] - RANK_POWER[a.rank]);
-  return unique.length > 0 && unique[0].rank === card.rank;
 }
 
 function chooseLead(seat, legalPlays, hand, memory, partnerSignal, gameState) {
@@ -107,13 +92,7 @@ function chooseLead(seat, legalPlays, hand, memory, partnerSignal, gameState) {
 function chooseFollow(seat, legalPlays, gameState, memory, partnerSignal) {
   const { currentTrick, ledSuit } = gameState;
   const isTeamPlay = gameState.config.teamPlay;
-
-  let currentWinner = currentTrick[0];
-  for (const entry of currentTrick) {
-    if (entry.card.suit === ledSuit && RANK_POWER[entry.card.rank] > RANK_POWER[currentWinner.card.rank]) {
-      currentWinner = entry;
-    }
-  }
+  const currentWinner = findCurrentWinner(currentTrick, ledSuit);
 
   const partnerIsWinning = isTeamPlay && teamOf(currentWinner.seat) === teamOf(seat);
   const trickSize = gameState.config.playerCount;
@@ -141,14 +120,11 @@ function chooseFollow(seat, legalPlays, gameState, memory, partnerSignal) {
         }
       }
 
-      const canWinHigher = legalPlays.some(c =>
+      const masterBeaters = legalPlays.filter(c =>
         RANK_POWER[c.rank] > RANK_POWER[currentWinner.card.rank] && isMaster(c, memory, gameState.hands[seat])
       );
-      if (canWinHigher) {
-        const master = legalPlays.filter(c =>
-          RANK_POWER[c.rank] > RANK_POWER[currentWinner.card.rank] && isMaster(c, memory, gameState.hands[seat])
-        ).sort((a, b) => RANK_POWER[a.rank] - RANK_POWER[b.rank])[0];
-        return master;
+      if (masterBeaters.length > 0) {
+        return masterBeaters.sort((a, b) => RANK_POWER[a.rank] - RANK_POWER[b.rank])[0];
       }
 
       return legalPlays.sort((a, b) => RANK_POWER[a.rank] - RANK_POWER[b.rank])[0];
@@ -179,24 +155,6 @@ function chooseFollow(seat, legalPlays, gameState, memory, partnerSignal) {
   }
 
   return pickLowestValue(legalPlays);
-}
-
-function getOpponents(seat, isTeamPlay, playerCount) {
-  if (isTeamPlay) {
-    const myTeam = teamOf(seat);
-    return SEATS.filter(s => teamOf(s) !== myTeam);
-  }
-  const seats = playerCount === 5 ? SEATS_5 : SEATS;
-  return seats.filter(s => s !== seat);
-}
-
-function pickLowestValue(cards) {
-  return cards.sort((a, b) => {
-    const va = CARD_POINTS[a.rank].ponti * 3 + CARD_POINTS[a.rank].terzi;
-    const vb = CARD_POINTS[b.rank].ponti * 3 + CARD_POINTS[b.rank].terzi;
-    if (va !== vb) return va - vb;
-    return RANK_POWER[a.rank] - RANK_POWER[b.rank];
-  })[0];
 }
 
 function pickHighestValue(cards) {
@@ -247,13 +205,7 @@ function chooseLeadUManje(seat, legalPlays, hand, memory, gameState) {
 
 function chooseFollowUManje(seat, legalPlays, gameState, memory) {
   const { currentTrick, ledSuit } = gameState;
-
-  let currentWinner = currentTrick[0];
-  for (const entry of currentTrick) {
-    if (entry.card.suit === ledSuit && RANK_POWER[entry.card.rank] > RANK_POWER[currentWinner.card.rank]) {
-      currentWinner = entry;
-    }
-  }
+  const currentWinner = findCurrentWinner(currentTrick, ledSuit);
 
   const followingSuit = legalPlays[0]?.suit === ledSuit;
 

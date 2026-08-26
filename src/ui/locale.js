@@ -15,6 +15,11 @@ export const SIGNAL_LABELS = {
   striso_tucem: 'Strišo tučem'
 };
 
+export function getSeatName(seat, config) {
+  if (config && !config.teamPlay && seat === 'north') return 'Gore';
+  return SEAT_NAMES[seat] || seat;
+}
+
 export const MESSAGES = {
   yourTurn: 'Tvoj potez',
   dealing: 'Dijeljenje...',

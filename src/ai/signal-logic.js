@@ -1,6 +1,5 @@
-import { RANK_POWER, partnerSeat } from '../core/constants.js';
-
-const TOP_RANKS = [3, 2, 1];
+import { RANK_POWER } from '../core/constants.js';
+import { TOP_RANKS } from './ai-utils.js';
 
 export function shouldSignal(hand, ledCard) {
   const suit = ledCard.suit;

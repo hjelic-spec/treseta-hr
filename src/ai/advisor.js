@@ -1,7 +1,6 @@
-import { RANK_POWER, CARD_POINTS, teamOf, partnerSeat, SUITS, SEATS, SEATS_5 } from '../core/constants.js';
+import { RANK_POWER, CARD_POINTS, teamOf, partnerSeat } from '../core/constants.js';
 import { getLegalPlays } from '../core/rules.js';
-
-const TOP_RANKS = [3, 2, 1];
+import { TOP_RANKS, isMaster, getOpponents, findCurrentWinner } from './ai-utils.js';
 
 export function analyzeHand(seat, hand, gameState, memory) {
   const { currentTrick, ledSuit } = gameState;
@@ -48,17 +47,6 @@ export function rateMove(card, seat, hand, gameState, memory) {
     bestCard: best.card,
     bestReason: best.reason
   };
-}
-
-function isMaster(card, memory, hand) {
-  const remaining = memory.getRemainingInSuit(card.suit);
-  const myCards = hand.filter(c => c.suit === card.suit);
-  const all = new Map();
-  for (const c of [...remaining, ...myCards]) {
-    all.set(`${c.rank}-${c.suit}`, c);
-  }
-  const sorted = [...all.values()].sort((a, b) => RANK_POWER[b.rank] - RANK_POWER[a.rank]);
-  return sorted.length > 0 && sorted[0].rank === card.rank;
 }
 
 function evaluateLead(card, seat, hand, legalPlays, memory, gameState) {
@@ -140,12 +128,7 @@ function evaluateFollow(card, seat, hand, gameState, memory) {
 
   const isTeamPlay = gameState.config.teamPlay;
   const trickSize = gameState.config.playerCount;
-  let currentWinner = currentTrick[0];
-  for (const entry of currentTrick) {
-    if (entry.card.suit === ledSuit && RANK_POWER[entry.card.rank] > RANK_POWER[currentWinner.card.rank]) {
-      currentWinner = entry;
-    }
-  }
+  const currentWinner = findCurrentWinner(currentTrick, ledSuit);
 
   const partnerIsWinning = isTeamPlay && teamOf(currentWinner.seat) === teamOf(seat);
   const isLastToPlay = currentTrick.length === trickSize - 1;
@@ -224,11 +207,3 @@ function evaluateFollow(card, seat, hand, gameState, memory) {
   return { score, reason: reasons.join('. ') || 'Standardni potez.' };
 }
 
-function getOpponents(seat, isTeamPlay, playerCount) {
-  if (isTeamPlay) {
-    const myTeam = teamOf(seat);
-    return SEATS.filter(s => teamOf(s) !== myTeam);
-  }
-  const seats = playerCount === 5 ? SEATS_5 : SEATS;
-  return seats.filter(s => s !== seat);
-}

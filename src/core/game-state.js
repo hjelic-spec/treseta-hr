@@ -1,4 +1,4 @@
-import { SEATS, SEATS_5, PHASES, VARIANT_CONFIG, getSeats } from './constants.js';
+import { PHASES, VARIANT_CONFIG, getSeats } from './constants.js';
 
 export function createInitialState(variant = 'dubrovnik') {
   const config = { ...VARIANT_CONFIG[variant], variant };
