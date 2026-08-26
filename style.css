@@ -189,6 +189,8 @@ html, body {
 .table-felt {
   width: 100%;
   height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
   background: radial-gradient(ellipse at center, var(--felt) 0%, var(--felt-dark) 60%, var(--felt-border) 100%);
   position: relative;
   overflow: hidden;
@@ -216,19 +218,19 @@ html, body {
 }
 
 .player-north {
-  top: 8px;
+  top: 30px;
   left: 50%;
   transform: translateX(-50%);
 }
 
 .player-east {
-  right: 15px;
+  right: 40px;
   top: 50%;
   transform: translateY(-50%);
 }
 
 .player-west {
-  left: 15px;
+  left: 40px;
   top: 50%;
   transform: translateY(-50%);
 }
@@ -244,12 +246,12 @@ html, body {
 /* Hands */
 .hand-container {
   position: relative;
-  height: 130px;
+  height: 280px;
 }
 
 .hand-vertical {
   height: auto;
-  width: 50px;
+  width: 100px;
 }
 
 /* Cards */
@@ -265,7 +267,7 @@ html, body {
 }
 
 .card-clickable:hover {
-  transform: translateY(-15px) !important;
+  translate: 0 -15px;
   z-index: 100;
   filter: brightness(1.1);
 }
@@ -312,65 +314,8 @@ html, body {
   white-space: nowrap;
 }
 
-.played-south {
-  bottom: 170px;
-  left: 50%;
-  transform: translateX(-50%);
-  animation: fly-south 0.35s cubic-bezier(0.2, 0.8, 0.3, 1);
-}
-
 .played-north {
-  top: 155px;
-  left: 50%;
-  transform: translateX(-50%);
   flex-direction: column-reverse;
-  animation: fly-north 0.35s cubic-bezier(0.2, 0.8, 0.3, 1);
-}
-
-.played-east {
-  right: 100px;
-  top: 50%;
-  transform: translateY(-50%);
-  animation: fly-east 0.35s cubic-bezier(0.2, 0.8, 0.3, 1);
-}
-
-.played-west {
-  left: 100px;
-  top: 50%;
-  transform: translateY(-50%);
-  animation: fly-west 0.35s cubic-bezier(0.2, 0.8, 0.3, 1);
-}
-
-.played-southeast {
-  right: 130px;
-  bottom: 200px;
-  animation: fly-east 0.35s cubic-bezier(0.2, 0.8, 0.3, 1);
-}
-
-.played-northeast {
-  right: 130px;
-  top: 180px;
-  animation: fly-east 0.35s cubic-bezier(0.2, 0.8, 0.3, 1);
-}
-
-@keyframes fly-south {
-  0% { transform: translateX(-50%) translateY(250px) scale(1.1); }
-  100% { transform: translateX(-50%) translateY(0) scale(1); }
-}
-
-@keyframes fly-north {
-  0% { transform: translateX(-50%) translateY(-200px) scale(0.8); }
-  100% { transform: translateX(-50%) translateY(0) scale(1); }
-}
-
-@keyframes fly-east {
-  0% { transform: translateY(-50%) translateX(200px) scale(0.8); }
-  100% { transform: translateY(-50%) translateX(0) scale(1); }
-}
-
-@keyframes fly-west {
-  0% { transform: translateY(-50%) translateX(-200px) scale(0.8); }
-  100% { transform: translateY(-50%) translateX(0) scale(1); }
 }
 
 .played-card.trick-collect {
@@ -465,7 +410,7 @@ html, body {
 /* Info Bar */
 .info-bar {
   position: absolute;
-  bottom: 160px;
+  bottom: 310px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0,0,0,0.6);
@@ -920,58 +865,108 @@ html, body {
   animation: signal-pop 0.4s ease-out;
 }
 
-/* Responsive */
+/* Responsive - Tablet */
 @media (max-width: 768px) {
   .lobby-title { font-size: 2.5rem; }
-  .hand-container { height: 105px; }
 
-  .card img, .card svg { width: 55px; height: 99px; }
+  .table-felt { min-height: 100vh; min-height: 100dvh; }
 
-  .played-south { bottom: 140px; }
-  .played-north { top: 120px; }
-  .played-east { right: 60px; }
-  .played-west { left: 60px; }
+  .player-north { top: 20px; }
+  .player-east { right: 25px; }
+  .player-west { left: 25px; }
+
+  .hand-container { height: 200px; }
+  .card img, .card svg { width: 100px; height: 180px; }
 
   .signal-btn { padding: 5px 10px; font-size: 0.75rem; }
 
-  .player-east, .player-west { display: none; }
+  .skola-btn { right: 10px; top: 50px; font-size: 0.78rem; padding: 5px 10px; }
+  .hint-btn { right: 10px; top: 84px; width: 28px; height: 28px; font-size: 0.85rem; }
+  .hint-panel { right: 10px; top: 118px; max-width: 220px; }
+
+  .info-bar { bottom: 230px; font-size: 0.8rem; }
+  .move-rating { bottom: 230px; }
+
+  .score-panel { padding: 6px 10px; }
+  .score-individual { font-size: 0.78rem; }
 }
 
+/* Responsive - Phone */
 @media (max-width: 480px) {
   .lobby-title { font-size: 2rem; }
-  .hand-container { height: 90px; }
 
-  .card img, .card svg { width: 45px; height: 81px; }
+  .player-north { top: 15px; }
+  .player-east { right: 10px; }
+  .player-west { left: 10px; }
 
-  .played-south { bottom: 120px; }
-  .played-north { top: 100px; }
-  .played-east { right: 30px; }
-  .played-west { left: 30px; }
+  .hand-container { height: 170px; }
+  .card img, .card svg { width: 84px; height: 152px; }
 
-  .score-panel { top: 5px; right: 5px; padding: 5px 10px; font-size: 0.8rem; }
+  .player-west,
+  .five-players .player-west { left: 5px; }
+  .player-east,
+  .five-players .player-southeast,
+  .five-players .player-northeast { right: 5px; }
+
+  .hand-vertical { width: 80px; }
+  .card-back-small svg { width: 80px; height: 70px; }
+
+  .player-label { font-size: 0.72rem; }
+
+  .score-panel { top: 5px; right: 5px; padding: 4px 8px; }
+  .score-team { font-size: 0.78rem; }
+  .score-individual { font-size: 0.72rem; gap: 6px; }
+  .score-panel-individual { min-width: 80px; }
+
+  .info-bar { bottom: 200px; font-size: 0.75rem; padding: 5px 14px; }
+  .move-rating { bottom: 200px; max-width: 200px; font-size: 0.78rem; }
+
+  .skola-btn { right: 8px; top: 45px; font-size: 0.72rem; padding: 4px 8px; }
+  .hint-btn { right: 8px; top: 74px; width: 26px; height: 26px; font-size: 0.8rem; }
+  .hint-panel { right: 8px; top: 104px; max-width: 200px; font-size: 0.78rem; }
+
+  .hamburger-btn { width: 36px; height: 36px; top: 8px; left: 8px; }
+  .back-btn { left: 50px; top: 8px; height: 36px; font-size: 18px; padding: 0 10px; }
+
+  .signal-btn { padding: 4px 8px; font-size: 0.7rem; }
+
+  .overlay-content { padding: 1.2em; }
+  .overlay-content h1 { font-size: 1.8rem; }
+  .overlay-content h2 { font-size: 1.1rem; }
+}
+
+/* Landscape phone */
+@media (max-height: 500px) {
+  .hand-container { height: 150px; }
+  .card img, .card svg { width: 76px; height: 136px; }
+  .info-bar { bottom: 100px; }
+  .player-north .hand-container { height: auto; }
+  .score-panel { padding: 3px 6px; }
+  .score-team { font-size: 0.72rem; line-height: 1.3; }
+  .score-individual { font-size: 0.68rem; }
 }
 
 /* 5-Player Layout */
 .five-players .player-southeast {
-  right: 15px;
-  bottom: 35%;
+  right: 40px;
+  bottom: 30%;
   transform: translateY(50%);
 }
 
 .five-players .player-northeast {
-  right: 15px;
+  right: 40px;
   top: 25%;
   transform: translateY(-50%);
 }
 
 .five-players .player-west {
-  left: 15px;
+  left: 40px;
   top: 40%;
   transform: translateY(-50%);
 }
 
 .five-players .player-north {
-  top: 8px;
+  top: 30px;
   left: 50%;
   transform: translateX(-50%);
 }

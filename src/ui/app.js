@@ -5,7 +5,7 @@ import { CardMemory } from '../ai/memory.js';
 import { analyzeHand, rateMove } from '../ai/advisor.js';
 import { createLobby } from './lobby.js';
 import { createTable, updatePlayerLabels, updateScores, showInfo, clearTrickArea } from './table-renderer.js';
-import { renderHand, createPlayedCard } from './card-renderer.js';
+import { renderHand, createPlayedCard, getCardMetrics } from './card-renderer.js';
 import { renderCardBackSmall } from './card-sprites.js';
 import { showSignalButtons, hideSignalButtons, showSignalIndicator } from './signal-ui.js';
 import { showHandEndOverlay, showGameEndOverlay, showDeclarations, highlightCurrentPlayer } from './hud.js';
@@ -251,6 +251,54 @@ function startGame({ mode, variant }) {
   game.startGame();
 }
 
+function placePlayedCard(cardEl, seat, area, startRect) {
+  const areaW = area.offsetWidth;
+  const areaH = area.offsetHeight;
+  const w = window.innerWidth;
+  const pw = w <= 480 ? 70 : w <= 768 ? 84 : 110;
+  const ph = Math.round(pw * 1.8);
+  const labelH = 18;
+  const cx = areaW / 2;
+  const cy = areaH * 0.45;
+  const gap = 6;
+
+  let x, y;
+  switch (seat) {
+    case 'south':     x = cx - pw / 2;      y = cy + gap;                   break;
+    case 'north':     x = cx - pw / 2;      y = cy - ph - labelH - gap;     break;
+    case 'east':      x = cx + gap;          y = cy - ph / 2;               break;
+    case 'west':      x = cx - pw - gap;     y = cy - ph / 2;               break;
+    case 'southeast': x = cx + gap;          y = cy + gap;                   break;
+    case 'northeast': x = cx + gap;          y = cy - ph - labelH - gap;     break;
+    default:          x = cx - pw / 2;      y = cy - ph / 2;
+  }
+
+  cardEl.style.left = x + 'px';
+  cardEl.style.top = y + 'px';
+
+  const areaRect = area.getBoundingClientRect();
+  let startX, startY;
+
+  if (startRect) {
+    startX = startRect.left + startRect.width / 2 - areaRect.left - pw / 2;
+    startY = startRect.top + startRect.height / 2 - areaRect.top - ph / 2;
+  } else {
+    const handEl = document.getElementById(`hand-${seat}`);
+    if (!handEl) return;
+    const handRect = handEl.getBoundingClientRect();
+    startX = handRect.left + handRect.width / 2 - areaRect.left - pw / 2;
+    startY = handRect.top + handRect.height / 2 - areaRect.top - ph / 2;
+  }
+
+  const dx = startX - x;
+  const dy = startY - y;
+
+  cardEl.animate([
+    { transform: `translate(${dx}px, ${dy}px) scale(0.85)`, opacity: 0.8 },
+    { transform: 'translate(0, 0) scale(1)', opacity: 1 }
+  ], { duration: 400, easing: 'cubic-bezier(0.2, 0.8, 0.3, 1)' });
+}
+
 function wireEvents() {
   game.on('game-started', (data) => {
     updatePlayerLabels(game.playerTypes, game.state.dealerSeat, game.state.config);
@@ -319,6 +367,15 @@ function wireEvents() {
 
     playerMemory.recordPlay(data.seat, data.card, game.state.ledSuit || data.card.suit);
 
+    let startRect = null;
+    const handCardEl = document.querySelector(`#hand-${data.seat} .card[data-card-id="${cardId(data.card)}"]`);
+    if (handCardEl) {
+      startRect = handCardEl.getBoundingClientRect();
+    }
+
+    renderAllHands();
+    renderHand(document.getElementById('hand-south'), game.state.hands.south, true);
+
     const area = document.getElementById('trick-area');
     if (data.trickSize === 1) {
       area.innerHTML = '';
@@ -327,10 +384,9 @@ function wireEvents() {
     const seatLabel = getSeatName(data.seat);
     const cardEl = createPlayedCard(data.card, data.seat, seatLabel);
     area.appendChild(cardEl);
+    placePlayedCard(cardEl, data.seat, area, startRect);
 
     playCardSound();
-
-    renderAllHands();
   });
 
   game.on('trick-won', (data) => {
@@ -405,14 +461,15 @@ function renderSouthHand(legalPlays = null) {
 function renderEWHand(containerId, cards) {
   const container = document.getElementById(containerId);
   container.innerHTML = '';
+  const m = getCardMetrics();
   cards.forEach((_, i) => {
     const el = document.createElement('div');
     el.className = 'card card-back-small';
     el.innerHTML = renderCardBackSmall();
-    el.style.top = (i * 14) + 'px';
+    el.style.top = (i * m.backSpacing) + 'px';
     container.appendChild(el);
   });
-  container.style.height = ((cards.length - 1) * 14 + 44) + 'px';
+  container.style.height = ((cards.length - 1) * m.backSpacing + 88) + 'px';
 }
 
 function doAITurn(seat, trickNumber) {

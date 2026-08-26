@@ -1,11 +1,11 @@
 const CARD_BASE_PATH = 'assets/cards';
 
-export function renderCardSVG(card, width = 70, height = 126) {
+export function renderCardSVG(card, width = 140, height = 252) {
   const src = `${CARD_BASE_PATH}/${card.suit}_${card.rank}.png`;
   return `<img src="${src}" width="${width}" height="${height}" alt="${card.suit} ${card.rank}" draggable="false" style="border-radius:4px;">`;
 }
 
-export function renderCardBack(width = 70, height = 126) {
+export function renderCardBack(width = 140, height = 252) {
   return `<svg viewBox="0 0 70 126" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
     <rect x="1" y="1" width="68" height="124" rx="4" fill="#1a4a8a" stroke="#0e3366" stroke-width="1.2"/>
     <rect x="4" y="4" width="62" height="118" rx="3" fill="none" stroke="#c9a84c" stroke-width="0.6" opacity="0.5"/>
@@ -20,7 +20,7 @@ export function renderCardBack(width = 70, height = 126) {
   </svg>`;
 }
 
-export function renderCardBackSmall(width = 50, height = 44) {
+export function renderCardBackSmall(width = 100, height = 88) {
   return `<svg viewBox="0 0 50 44" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
     <rect x="1" y="1" width="48" height="42" rx="4" fill="#1a4a8a" stroke="#0e3366" stroke-width="1"/>
     <rect x="3" y="3" width="44" height="38" rx="3" fill="none" stroke="#c9a84c" stroke-width="0.5" opacity="0.6"/>
