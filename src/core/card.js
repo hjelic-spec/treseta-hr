@@ -16,15 +16,6 @@ export function cardPoints(card) {
   return CARD_POINTS[card.rank];
 }
 
-export function compareCards(a, b, ledSuit) {
-  const aMatch = a.suit === ledSuit;
-  const bMatch = b.suit === ledSuit;
-  if (aMatch && !bMatch) return -1;
-  if (!aMatch && bMatch) return 1;
-  if (!aMatch && !bMatch) return 0;
-  return RANK_POWER[b.rank] - RANK_POWER[a.rank];
-}
-
 export function sortHand(cards) {
   const suitOrder = {};
   SUITS.forEach((s, i) => suitOrder[s] = i);

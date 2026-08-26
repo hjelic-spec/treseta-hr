@@ -33,13 +33,3 @@ export function respondToPartnerSignal(signal, hand, ledSuit) {
 
   return null;
 }
-
-export function shouldReturnSuit(signal, hand) {
-  if (!signal) return null;
-  if (signal.type !== 'tucem' && signal.type !== 'striso_tucem') return null;
-
-  const suitCards = hand.filter(c => c.suit === signal.suit);
-  if (suitCards.length === 0) return null;
-
-  return suitCards.sort((a, b) => RANK_POWER[b.rank] - RANK_POWER[a.rank])[0];
-}

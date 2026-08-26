@@ -1,6 +1,6 @@
 import { CardMemory } from './memory.js';
 import { chooseCard } from './strategy.js';
-import { shouldSignal, respondToPartnerSignal } from './signal-logic.js';
+import { shouldSignal } from './signal-logic.js';
 import { partnerSeat } from '../core/constants.js';
 import { detectDeclarations } from '../core/declarations.js';
 

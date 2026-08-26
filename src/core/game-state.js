@@ -54,19 +54,3 @@ export function createInitialState(variant = 'dubrovnik') {
   };
 }
 
-export function cloneState(state) {
-  return {
-    ...state,
-    hands: Object.fromEntries(
-      Object.entries(state.hands).map(([k, v]) => [k, [...v]])
-    ),
-    scores: Array.isArray(state.scores) ? [...state.scores] : { ...state.scores },
-    handScores: Array.isArray(state.handScores) ? [...state.handScores] : { ...state.handScores },
-    currentTrick: state.currentTrick.map(e => ({ ...e, card: { ...e.card } })),
-    tricksWon: Array.isArray(state.tricksWon)
-      ? [state.tricksWon[0].map(t => [...t]), state.tricksWon[1].map(t => [...t])]
-      : Object.fromEntries(Object.entries(state.tricksWon).map(([k, v]) => [k, v.map(t => [...t])])),
-    trickCounts: Array.isArray(state.trickCounts) ? [...state.trickCounts] : { ...state.trickCounts },
-    declarations: [...state.declarations]
-  };
-}

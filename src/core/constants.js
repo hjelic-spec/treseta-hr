@@ -80,19 +80,6 @@ export const VARIANT_CONFIG = {
   u_manje: { declarationsEnabled: false, targetScore: 101, playerCount: 5, teamPlay: false, uManje: true }
 };
 
-export const CARD_POINTS_U_MANJE = {
-  1: { ponti: 1, terzi: 0, asBata: true },
-  2: { ponti: 0, terzi: 1 },
-  3: { ponti: 0, terzi: 1 },
-  11: { ponti: 0, terzi: 1 },
-  12: { ponti: 0, terzi: 1 },
-  13: { ponti: 0, terzi: 1 },
-  4: { ponti: 0, terzi: 0 },
-  5: { ponti: 0, terzi: 0 },
-  6: { ponti: 0, terzi: 0 },
-  7: { ponti: 0, terzi: 0 }
-};
-
 export function teamOf(seat) {
   return TEAMS[0].includes(seat) ? 0 : 1;
 }

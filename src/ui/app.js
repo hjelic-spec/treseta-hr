@@ -67,7 +67,7 @@ function wireMenu() {
 function navigateTo(screen) {
   if (screen === currentScreen) return;
   if (screen === 'lobby') {
-    if (game && game.state.phase !== 'finished') {
+    if (game && game.state.phase !== 'game_end') {
       showConfirmDialog('Napustiti igru?', 'Igra je u tijeku. Želiš li se vratiti u izbornik?', () => {
         showLobby();
       });
@@ -75,7 +75,7 @@ function navigateTo(screen) {
       showLobby();
     }
   } else if (screen === 'pravila') {
-    if (game && game.state.phase !== 'finished') {
+    if (game && game.state.phase !== 'game_end') {
       showConfirmDialog('Napustiti igru?', 'Igra je u tijeku. Želiš li se vratiti u izbornik?', () => {
         showPravila();
       });
@@ -83,7 +83,7 @@ function navigateTo(screen) {
       showPravila();
     }
   } else if (screen === 'about') {
-    if (game && game.state.phase !== 'finished') {
+    if (game && game.state.phase !== 'game_end') {
       showConfirmDialog('Napustiti igru?', 'Igra je u tijeku. Želiš li se vratiti u izbornik?', () => {
         showAbout();
       });
@@ -331,9 +331,6 @@ function wireEvents() {
     playCardSound();
 
     renderAllHands();
-    if (data.seat === 'south') {
-      renderSouthHand();
-    }
   });
 
   game.on('trick-won', (data) => {
@@ -346,7 +343,7 @@ function wireEvents() {
 
   game.on('hand-ended', (data) => {
     updateScores(data.totalScores, game.state.config);
-    showHandEndOverlay(data.handScores, data.totalScores, data.kaputTeam, data.lastTrickWinner, game.state.config);
+    showHandEndOverlay(data.handScores, data.totalScores, data.kapotTeam, data.lastTrickWinner, game.state.config);
   });
 
   game.on('game-ended', (data) => {
@@ -354,8 +351,8 @@ function wireEvents() {
       if (action === 'lobby') {
         showLobby();
       } else {
-        game.destroy();
         const variant = game.state.config.variant;
+        game.destroy();
         startGame({ mode: 'solo', variant });
       }
     });

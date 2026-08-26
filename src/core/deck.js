@@ -37,9 +37,8 @@ export function deal(dealerSeat, playerCount = 4) {
       seat = nextFn(seat);
     }
   } else {
-    let seat = nextSeat(dealerSeat);
     for (let round = 0; round < 2; round++) {
-      seat = nextSeat(dealerSeat);
+      let seat = nextSeat(dealerSeat);
       for (let p = 0; p < 4; p++) {
         for (let c = 0; c < 5; c++) {
           hands[seat].push(deck[cardIdx++]);

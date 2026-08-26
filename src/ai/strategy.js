@@ -66,9 +66,8 @@ function chooseLead(seat, legalPlays, hand, memory, partnerSignal, gameState) {
 
     const topCount = suitCards.filter(c => TOP_RANKS.includes(c.rank)).length;
     const remaining = memory.getRemainingInSuit(suit);
-    const higherOutCount = remaining.filter(c =>
-      RANK_POWER[c.rank] > RANK_POWER[suitCards.sort((a, b) => RANK_POWER[b.rank] - RANK_POWER[a.rank])[0].rank]
-    ).length;
+    const bestRank = Math.max(...suitCards.map(c => RANK_POWER[c.rank]));
+    const higherOutCount = remaining.filter(c => RANK_POWER[c.rank] > bestRank).length;
 
     let opponentVoid = false;
     if (opponents.length >= 2) {
@@ -227,11 +226,11 @@ function chooseLeadUManje(seat, legalPlays, hand, memory, gameState) {
   for (const suit of Object.keys(suitGroups)) {
     const cards = suitGroups[suit];
     const remaining = memory.getRemainingInSuit(suit);
-    const higherOut = remaining.filter(c =>
-      RANK_POWER[c.rank] > RANK_POWER[cards.sort((a, b) => RANK_POWER[b.rank] - RANK_POWER[a.rank])[0].rank]
-    ).length;
+    const topRank = Math.max(...cards.map(c => RANK_POWER[c.rank]));
+    const higherOut = remaining.filter(c => RANK_POWER[c.rank] > topRank).length;
+    const topCard = cards.find(c => RANK_POWER[c.rank] === topRank);
 
-    const score = higherOut * 10 - cards.length * 3 - (isMaster(cards[0], memory, hand) ? 20 : 0);
+    const score = higherOut * 10 - cards.length * 3 - (isMaster(topCard, memory, hand) ? 20 : 0);
     if (score > bestScore) {
       bestScore = score;
       bestSuit = suit;

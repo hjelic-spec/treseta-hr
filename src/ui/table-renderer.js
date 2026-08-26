@@ -112,13 +112,15 @@ export function updateScores(scores, config = null) {
   }
 }
 
+let _infoTimer = null;
 export function showInfo(text, duration = 2000) {
   const bar = document.getElementById('info-bar');
   if (!bar) return;
+  if (_infoTimer) clearTimeout(_infoTimer);
   bar.textContent = text;
   bar.classList.add('visible');
   if (duration > 0) {
-    setTimeout(() => bar.classList.remove('visible'), duration);
+    _infoTimer = setTimeout(() => { bar.classList.remove('visible'); _infoTimer = null; }, duration);
   }
 }
 

@@ -1,4 +1,4 @@
-import { MESSAGES, SEAT_NAMES, TEAM_NAMES } from './locale.js';
+import { MESSAGES, SEAT_NAMES } from './locale.js';
 import { SUIT_DISPLAY, RANK_DISPLAY } from '../core/constants.js';
 
 function seatName(seat, config) {

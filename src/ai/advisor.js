@@ -1,6 +1,5 @@
-import { RANK_POWER, CARD_POINTS, teamOf, partnerSeat, SUITS } from '../core/constants.js';
+import { RANK_POWER, CARD_POINTS, teamOf, partnerSeat, SUITS, SEATS, SEATS_5 } from '../core/constants.js';
 import { getLegalPlays } from '../core/rules.js';
-import { SUIT_DISPLAY, RANK_DISPLAY } from '../core/constants.js';
 
 const TOP_RANKS = [3, 2, 1];
 
@@ -17,7 +16,7 @@ export function analyzeHand(seat, hand, gameState, memory) {
 
   for (const card of legalPlays) {
     const result = isLeading
-      ? evaluateLead(card, seat, hand, legalPlays, memory)
+      ? evaluateLead(card, seat, hand, legalPlays, memory, gameState)
       : evaluateFollow(card, seat, hand, gameState, memory);
     analyses.push({ card, ...result });
   }
@@ -32,12 +31,6 @@ export function analyzeHand(seat, hand, gameState, memory) {
 
   analyses.sort((a, b) => b.score - a.score);
   return analyses;
-}
-
-export function getHint(seat, hand, gameState, memory) {
-  const analyses = analyzeHand(seat, hand, gameState, memory);
-  if (analyses.length === 0) return null;
-  return analyses[0];
 }
 
 export function rateMove(card, seat, hand, gameState, memory) {
@@ -57,10 +50,6 @@ export function rateMove(card, seat, hand, gameState, memory) {
   };
 }
 
-function cardName(card) {
-  return `${RANK_DISPLAY[card.rank]} ${SUIT_DISPLAY[card.suit]}`;
-}
-
 function isMaster(card, memory, hand) {
   const remaining = memory.getRemainingInSuit(card.suit);
   const myCards = hand.filter(c => c.suit === card.suit);
@@ -72,7 +61,7 @@ function isMaster(card, memory, hand) {
   return sorted.length > 0 && sorted[0].rank === card.rank;
 }
 
-function evaluateLead(card, seat, hand, legalPlays, memory) {
+function evaluateLead(card, seat, hand, legalPlays, memory, gameState) {
   let score = 50;
   const reasons = [];
   const suit = card.suit;
@@ -113,17 +102,20 @@ function evaluateLead(card, seat, hand, legalPlays, memory) {
     }
   }
 
-  const opponents = getOpponents(seat);
-  const bothVoid = opponents.every(o => memory.isVoidIn(o, suit));
-  if (bothVoid && suitCards.length > 0) {
+  const isTeamPlay = gameState.config.teamPlay;
+  const opponents = getOpponents(seat, isTeamPlay, gameState.config.playerCount);
+  const allVoid = opponents.every(o => memory.isVoidIn(o, suit));
+  if (allVoid && suitCards.length > 0) {
     score -= 20;
-    reasons.push('Oba protivnika su bez ove boje');
+    reasons.push('Svi protivnici su bez ove boje');
   }
 
-  const partnerVoid = memory.isVoidIn(partnerSeat(seat), suit);
-  if (partnerVoid && !master) {
-    score -= 10;
-    reasons.push('Partner nema ovu boju - ne može pomoći');
+  if (isTeamPlay) {
+    const partnerVoid = memory.isVoidIn(partnerSeat(seat), suit);
+    if (partnerVoid && !master) {
+      score -= 10;
+      reasons.push('Partner nema ovu boju - ne može pomoći');
+    }
   }
 
   if (CARD_POINTS[card.rank].ponti > 0 && !master) {
@@ -146,7 +138,8 @@ function evaluateFollow(card, seat, hand, gameState, memory) {
   let score = 50;
   const reasons = [];
 
-  const myTeam = teamOf(seat);
+  const isTeamPlay = gameState.config.teamPlay;
+  const trickSize = gameState.config.playerCount;
   let currentWinner = currentTrick[0];
   for (const entry of currentTrick) {
     if (entry.card.suit === ledSuit && RANK_POWER[entry.card.rank] > RANK_POWER[currentWinner.card.rank]) {
@@ -154,8 +147,8 @@ function evaluateFollow(card, seat, hand, gameState, memory) {
     }
   }
 
-  const partnerIsWinning = teamOf(currentWinner.seat) === myTeam;
-  const isLastToPlay = currentTrick.length === 3;
+  const partnerIsWinning = isTeamPlay && teamOf(currentWinner.seat) === teamOf(seat);
+  const isLastToPlay = currentTrick.length === trickSize - 1;
   const followingSuit = card.suit === ledSuit;
 
   if (partnerIsWinning) {
@@ -231,7 +224,11 @@ function evaluateFollow(card, seat, hand, gameState, memory) {
   return { score, reason: reasons.join('. ') || 'Standardni potez.' };
 }
 
-function getOpponents(seat) {
-  const myTeam = teamOf(seat);
-  return ['south', 'east', 'north', 'west'].filter(s => teamOf(s) !== myTeam);
+function getOpponents(seat, isTeamPlay, playerCount) {
+  if (isTeamPlay) {
+    const myTeam = teamOf(seat);
+    return SEATS.filter(s => teamOf(s) !== myTeam);
+  }
+  const seats = playerCount === 5 ? SEATS_5 : SEATS;
+  return seats.filter(s => s !== seat);
 }

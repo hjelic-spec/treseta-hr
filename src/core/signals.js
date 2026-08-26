@@ -12,12 +12,3 @@ export const SIGNAL_DISPLAY = {
   striso: 'Strišo!',
   striso_tucem: 'Strišo tučem!'
 };
-
-export function signalDescription(type) {
-  const descriptions = {
-    tucem: 'Ubij najjačom i vrati istu boju',
-    striso: 'Imam još karata ove boje',
-    striso_tucem: 'Imam niskih ali ubij i vrati'
-  };
-  return descriptions[type];
-}

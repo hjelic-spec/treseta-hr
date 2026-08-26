@@ -1,7 +1,7 @@
 import { SEATS, SEATS_5, PHASES, teamOf, nextSeat, getSeats, getNextSeat } from './constants.js';
 import { cardId, sortHand } from './card.js';
 import { deal } from './deck.js';
-import { getLegalPlays, determineTrickWinner, detectCheat, canSignal } from './rules.js';
+import { getLegalPlays, determineTrickWinner, canSignal } from './rules.js';
 import { countHandScore, checkKapot } from './scoring.js';
 import { detectDeclarations, totalDeclarationPoints } from './declarations.js';
 import { createSignal } from './signals.js';
@@ -136,7 +136,7 @@ export class GameController {
     if (!canSignal(seat, s.currentTrick)) return false;
     if (s.trickNumber === 0) return false;
 
-    const suit = null;
+    const suit = s.ledSuit || (s.currentTrick.length > 0 ? s.currentTrick[0].card.suit : null);
     s.currentSignal = createSignal(signalType, seat, suit);
     this.bus.emit('signal-made', s.currentSignal);
     return true;
@@ -158,11 +158,6 @@ export class GameController {
     const legalPlays = getLegalPlays(hand, s.ledSuit);
     const isLegal = legalPlays.some(c => c.suit === card.suit && c.rank === card.rank);
     if (!isLegal) return false;
-
-    if (detectCheat(hand, card, s.ledSuit)) {
-      this._handleCheat(seat);
-      return false;
-    }
 
     hand.splice(cardIndex, 1);
     s.currentTrick.push({ seat, card });
@@ -217,7 +212,10 @@ export class GameController {
     } else {
       s.currentSeat = winner;
       s.phase = PHASES.PLAYING;
-      this._aiTimers.push(setTimeout(() => this._emitTurnChanged(), 800));
+      this._aiTimers.push(setTimeout(() => {
+        this._aiTimers = [];
+        this._emitTurnChanged();
+      }, 800));
     }
   }
 
