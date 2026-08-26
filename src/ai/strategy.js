@@ -25,7 +25,7 @@ export function chooseCard(seat, hand, gameState, memory, partnerSignal) {
 }
 
 function chooseLead(seat, legalPlays, hand, memory, partnerSignal, gameState) {
-  if (partnerSignal && (partnerSignal.type === 'tucem' || partnerSignal.type === 'striso_tucem')) {
+  if (partnerSignal && partnerSignal.type === 'tucem') {
     const returnCards = legalPlays.filter(c => c.suit === partnerSignal.suit);
     if (returnCards.length > 0) {
       return returnCards.sort((a, b) => RANK_POWER[b.rank] - RANK_POWER[a.rank])[0];
@@ -99,7 +99,7 @@ function chooseFollow(seat, legalPlays, gameState, memory, partnerSignal) {
   const isLastToPlay = currentTrick.length === trickSize - 1;
   const followingSuit = legalPlays[0]?.suit === ledSuit;
 
-  if (isTeamPlay && partnerSignal && (partnerSignal.type === 'tucem' || partnerSignal.type === 'striso_tucem') &&
+  if (isTeamPlay && partnerSignal && partnerSignal.type === 'tucem' &&
       partnerSignal.seat === partnerSeat(seat) && followingSuit) {
     return legalPlays.sort((a, b) => RANK_POWER[b.rank] - RANK_POWER[a.rank])[0];
   }

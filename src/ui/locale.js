@@ -11,8 +11,7 @@ export const TEAM_NAMES = ['Mi', 'Vi'];
 
 export const SIGNAL_LABELS = {
   tucem: 'Tučem',
-  striso: 'Strišo',
-  striso_tucem: 'Strišo tučem'
+  striso: 'Strišo'
 };
 
 export function getSeatName(seat, config) {

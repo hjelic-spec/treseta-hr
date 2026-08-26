@@ -56,7 +56,7 @@ export const TEAMS = {
   1: ['east', 'west']
 };
 
-export const SIGNAL_TYPES = ['tucem', 'striso', 'striso_tucem'];
+export const SIGNAL_TYPES = ['tucem', 'striso'];
 
 export const PHASES = {
   LOBBY: 'lobby',
@@ -70,13 +70,11 @@ export const PHASES = {
 
 export const VARIANTS = {
   DUBROVNIK: 'dubrovnik',
-  SA_ZVANJIMA: 'sa_zvanjima',
   U_MANJE: 'u_manje'
 };
 
 export const VARIANT_CONFIG = {
   dubrovnik: { declarationsEnabled: false, targetScore: 41, playerCount: 4, teamPlay: true, uManje: false },
-  sa_zvanjima: { declarationsEnabled: true, targetScore: 41, playerCount: 4, teamPlay: true, uManje: false },
   u_manje: { declarationsEnabled: false, targetScore: 101, playerCount: 5, teamPlay: false, uManje: true }
 };
 

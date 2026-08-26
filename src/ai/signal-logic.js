@@ -9,7 +9,6 @@ export function shouldSignal(hand, ledCard) {
   const lowInHand = suitCards.filter(c => !TOP_RANKS.includes(c.rank));
 
   if (topInHand.length >= 2) {
-    if (lowInHand.length > 0) return 'striso_tucem';
     return 'tucem';
   }
 
@@ -26,7 +25,7 @@ export function respondToPartnerSignal(signal, hand, ledSuit) {
   const suitCards = hand.filter(c => c.suit === ledSuit);
   if (suitCards.length === 0) return null;
 
-  if (signal.type === 'tucem' || signal.type === 'striso_tucem') {
+  if (signal.type === 'tucem') {
     return suitCards.sort((a, b) => RANK_POWER[b.rank] - RANK_POWER[a.rank])[0];
   }
 

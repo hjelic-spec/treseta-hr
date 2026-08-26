@@ -8,7 +8,7 @@ import { createTable, updatePlayerLabels, updateScores, showInfo, clearTrickArea
 import { renderHand, createPlayedCard, getCardMetrics } from './card-renderer.js';
 import { renderCardBackSmall } from './card-sprites.js';
 import { showSignalButtons, hideSignalButtons, showSignalIndicator } from './signal-ui.js';
-import { showHandEndOverlay, showGameEndOverlay, showDeclarations, highlightCurrentPlayer } from './hud.js';
+import { showHandEndOverlay, showGameEndOverlay, highlightCurrentPlayer } from './hud.js';
 import { MESSAGES, getSeatName } from './locale.js';
 import { playCardSound, playTrickWonSound } from './audio.js';
 import { cardId, cardDisplayName } from '../core/card.js';
@@ -136,11 +136,6 @@ function showPravila() {
       <div class="rule-section">
         <h3>Bodovanje</h3>
         <p>Igra se do 41 ponat. Svake 3 bele su 1 ponat. Ako jedan tim osvoji sve ruke — to je <strong>kaput</strong> (11 ponata).</p>
-      </div>
-
-      <div class="rule-section">
-        <h3>Zvanja (varijanta sa zvanjima)</h3>
-        <p><strong>Napolitana:</strong> A-2-3 iste boje = 3 boda. <strong>Tri iste:</strong> tri karte istog ranga = 3 boda. <strong>Četiri iste:</strong> četiri karte istog ranga = 4 boda.</p>
       </div>
 
       <div class="rule-section">
@@ -304,17 +299,12 @@ function wireEvents() {
     hideMoveRating();
   });
 
-  game.on('declarations-made', (data) => {
-    showDeclarations([data]);
-    updateScores(game.state.scores, game.state.config);
-  });
-
   game.on('turn-changed', (data) => {
     highlightCurrentPlayer(data.seat);
 
     if (data.isHuman) {
       const signalContainer = document.getElementById('signals-south');
-      if (data.isLeading && data.trickNumber > 0) {
+      if (game.state.config.teamPlay && data.isLeading && data.trickNumber > 0) {
         showSignalButtons(signalContainer, (type) => {
           game.makeSignal(data.seat, type);
         });
@@ -469,7 +459,7 @@ function doAITurn(seat, trickNumber) {
 
   if (isLeading) {
     const cardToPlay = ai.decidePlay(hand, state);
-    const signalType = trickNumber > 0 ? ai.decideSignal(hand, cardToPlay) : null;
+    const signalType = state.config.teamPlay && trickNumber > 0 ? ai.decideSignal(hand, cardToPlay) : null;
     if (signalType) {
       game.makeSignal(seat, signalType);
       setTimeout(() => game.playCard(seat, cardToPlay), 400);

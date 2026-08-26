@@ -5,7 +5,7 @@ export function showSignalButtons(container, onSignal) {
   container.innerHTML = '';
   container.classList.add('visible');
 
-  const types = ['tucem', 'striso', 'striso_tucem'];
+  const types = ['tucem', 'striso'];
   types.forEach(type => {
     const btn = document.createElement('button');
     btn.className = 'signal-btn signal-' + type;

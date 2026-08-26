@@ -9,6 +9,5 @@ export function createSignal(type, seat, suit) {
 
 export const SIGNAL_DISPLAY = {
   tucem: 'Tučem!',
-  striso: 'Strišo!',
-  striso_tucem: 'Strišo tučem!'
+  striso: 'Strišo!'
 };

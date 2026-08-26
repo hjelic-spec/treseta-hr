@@ -132,6 +132,7 @@ export class GameController {
 
   makeSignal(seat, signalType) {
     const s = this.state;
+    if (!s.config.teamPlay) return false;
     if (seat !== s.currentSeat) return false;
     if (!canSignal(seat, s.currentTrick)) return false;
     if (s.trickNumber === 0) return false;
