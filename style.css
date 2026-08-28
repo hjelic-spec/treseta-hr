@@ -258,8 +258,23 @@ html, body {
 .card {
   position: absolute;
   cursor: default;
-  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s, filter 0.2s;
   border-radius: 6px;
+}
+
+.card img {
+  display: block;
+  outline: 2px solid rgba(255,255,255,0.82);
+  outline-offset: -2px;
+  border-radius: 6px;
+  box-shadow: 1px 2px 6px rgba(0,0,0,0.45);
+  image-rendering: auto;
+}
+
+.card svg {
+  display: block;
+  border-radius: 6px;
+  box-shadow: 1px 2px 6px rgba(0,0,0,0.4);
 }
 
 .card-clickable {
@@ -268,13 +283,23 @@ html, body {
 
 .card-clickable:hover {
   translate: 0 -15px;
-  z-index: 100;
-  filter: brightness(1.1);
+  z-index: 100 !important;
+  filter: brightness(1.08);
+}
+
+.card-clickable:hover img {
+  outline-color: rgba(255,255,255,1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5), 0 0 8px rgba(201,168,76,0.3);
 }
 
 .card-disabled {
-  opacity: 0.4;
-  filter: grayscale(0.5);
+  opacity: 0.45;
+  filter: grayscale(0.4);
+}
+
+.card-disabled img {
+  outline-color: rgba(255,255,255,0.35);
+  box-shadow: none;
 }
 
 .card-back-small {
@@ -301,9 +326,16 @@ html, body {
   pointer-events: none;
 }
 
-.played-card img, .played-card svg {
-  border-radius: 4px;
-  box-shadow: 2px 2px 8px var(--card-shadow);
+.played-card img {
+  outline: 2px solid rgba(255,255,255,0.82);
+  outline-offset: -2px;
+  border-radius: 5px;
+  box-shadow: 2px 3px 10px var(--card-shadow);
+}
+
+.played-card svg {
+  border-radius: 5px;
+  box-shadow: 2px 3px 10px var(--card-shadow);
 }
 
 .played-card .played-label {
@@ -901,6 +933,8 @@ html, body {
 
   .hand-container { height: 170px; }
   .card img, .card svg { width: 84px; height: 152px; }
+  .card img { outline-width: 1.5px; outline-offset: -1.5px; }
+  .played-card img { outline-width: 1.5px; outline-offset: -1.5px; }
 
   .player-west,
   .five-players .player-west { left: 5px; }
