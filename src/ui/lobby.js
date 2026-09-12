@@ -3,6 +3,12 @@ export function createLobby(onStart) {
   lobby.id = 'lobby';
   lobby.innerHTML = `
     <div class="lobby-content">
+      <div class="lobby-fan">
+        <img src="assets/cards/dinari_1.png" class="fan-card" style="transform: rotate(-20deg) translateY(5px);">
+        <img src="assets/cards/kupe_1.png" class="fan-card" style="transform: rotate(-7deg) translateY(-2px);">
+        <img src="assets/cards/bate_1.png" class="fan-card" style="transform: rotate(7deg) translateY(-2px);">
+        <img src="assets/cards/spade_1.png" class="fan-card" style="transform: rotate(20deg) translateY(5px);">
+      </div>
       <h1 class="lobby-title">Treseta</h1>
       <p class="lobby-subtitle">Igra na karata</p>
 
@@ -23,23 +29,7 @@ export function createLobby(onStart) {
       </div>
 
       <div class="lobby-section">
-        <h3>Način igre</h3>
-        <div class="mode-buttons">
-          <button class="btn btn-mode" data-mode="solo">
-            <span class="mode-icon">🧑</span>
-            <span class="mode-text">Sam protiv 3 bota</span>
-          </button>
-          <button class="btn btn-mode" data-mode="duo_vs_bots">
-            <span class="mode-icon">👥</span>
-            <span class="mode-text">2 igrača vs 2 bota</span>
-            <span class="mode-soon">Uskoro</span>
-          </button>
-          <button class="btn btn-mode" data-mode="four_players">
-            <span class="mode-icon">👥👥</span>
-            <span class="mode-text">2 vs 2 igrača</span>
-            <span class="mode-soon">Uskoro</span>
-          </button>
-        </div>
+        <button class="btn btn-primary btn-start" id="btn-start">Igraj</button>
       </div>
     </div>
   `;
@@ -49,25 +39,12 @@ export function createLobby(onStart) {
       lobby.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
       opt.querySelector('input').checked = true;
-      const variant = opt.querySelector('input').value;
-      const soloBtn = lobby.querySelector('[data-mode="solo"] .mode-text');
-      if (soloBtn) {
-        soloBtn.textContent = variant === 'u_manje' ? 'Sam protiv 4 bota' : 'Sam protiv 3 bota';
-      }
     });
   });
 
-  lobby.querySelectorAll('.btn-mode').forEach(btn => {
-    const mode = btn.dataset.mode;
-    if (mode === 'solo') {
-      btn.addEventListener('click', () => {
-        const variant = lobby.querySelector('input[name="variant"]:checked').value;
-        onStart({ mode, variant });
-      });
-    } else {
-      btn.disabled = true;
-      btn.classList.add('btn-disabled');
-    }
+  lobby.querySelector('#btn-start').addEventListener('click', () => {
+    const variant = lobby.querySelector('input[name="variant"]:checked').value;
+    onStart({ mode: 'solo', variant });
   });
 
   return lobby;

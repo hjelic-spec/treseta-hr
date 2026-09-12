@@ -6,7 +6,7 @@ import { analyzeHand, rateMove } from '../ai/advisor.js';
 import { createLobby } from './lobby.js';
 import { createTable, updatePlayerLabels, updateScores, showInfo, clearTrickArea } from './table-renderer.js';
 import { renderHand, createPlayedCard, getCardMetrics } from './card-renderer.js';
-import { renderCardBackSmall } from './card-sprites.js';
+import { renderCardBack } from './card-sprites.js';
 import { showSignalButtons, hideSignalButtons, showSignalIndicator } from './signal-ui.js';
 import { showHandEndOverlay, showGameEndOverlay, highlightCurrentPlayer } from './hud.js';
 import { MESSAGES, getSeatName } from './locale.js';
@@ -18,6 +18,7 @@ let aiPlayers = {};
 let playerMemory = null;
 let skolaEnabled = false;
 let prePlayHand = null;
+let handHistory = [];
 
 let currentScreen = null;
 
@@ -223,16 +224,17 @@ function startGame({ mode, variant }) {
 
   currentScreen = 'game';
   updateBackButton();
-  document.getElementById('skola-btn').addEventListener('click', toggleSkola);
-  document.getElementById('hint-btn').addEventListener('click', requestHint);
+  handHistory = [];
+  document.getElementById('hint-btn').addEventListener('click', toggleSkola);
+  document.getElementById('score-panel').addEventListener('click', showScoreHistory);
 
   wireEvents();
   game.startGame();
 }
 
 function placePlayedCard(cardEl, seat, area, startRect) {
-  const areaW = area.offsetWidth;
-  const areaH = area.offsetHeight;
+  const areaW = window.innerWidth;
+  const areaH = window.innerHeight;
   const w = window.innerWidth;
   const pw = w <= 480 ? 70 : w <= 768 ? 84 : 110;
   const ph = Math.round(pw * 1.8);
@@ -372,6 +374,7 @@ function wireEvents() {
   });
 
   game.on('hand-ended', (data) => {
+    handHistory.push({ handScores: data.handScores, totalScores: data.totalScores });
     updateScores(data.totalScores, game.state.config);
     showHandEndOverlay(data.handScores, data.totalScores, data.kapotTeam, data.lastTrickWinner, game.state.config);
   });
@@ -403,9 +406,9 @@ function renderAllHands() {
     renderEWHand('hand-northeast', state.hands.northeast);
     renderEWHand('hand-west', state.hands.west);
   } else {
-    renderHand(document.getElementById('hand-north'), state.hands.north, false);
-    renderEWHand('hand-east', state.hands.east);
-    renderEWHand('hand-west', state.hands.west);
+    renderBotHand('hand-north', state.hands.north, false);
+    renderBotHand('hand-east', state.hands.east, true);
+    renderBotHand('hand-west', state.hands.west, true);
   }
 }
 
@@ -432,19 +435,33 @@ function renderSouthHand(legalPlays = null) {
   }, qualityMap);
 }
 
-function renderEWHand(containerId, cards) {
+function renderBotHand(containerId, cards, vertical = false) {
   const container = document.getElementById(containerId);
   container.innerHTML = '';
   const m = getCardMetrics();
+  const spacing = Math.round(m.backSpacing / 2);
   cards.forEach((_, i) => {
     const el = document.createElement('div');
-    el.className = 'card card-back-small';
-    el.innerHTML = renderCardBackSmall();
-    el.style.top = (i * m.backSpacing) + 'px';
+    el.className = 'card';
+    el.style.position = 'absolute';
+    el.innerHTML = renderCardBack(m.cardW, m.cardH);
+    if (vertical) {
+      el.style.top = (i * spacing) + 'px';
+      el.style.left = '0';
+    } else {
+      el.style.left = (i * spacing) + 'px';
+      el.style.top = '0';
+    }
+    el.style.zIndex = i;
     container.appendChild(el);
   });
-  const backH = m.cardW <= 84 ? 70 : 88;
-  container.style.height = ((cards.length - 1) * m.backSpacing + backH) + 'px';
+  if (vertical) {
+    container.style.width = m.cardW + 'px';
+    container.style.height = ((cards.length - 1) * spacing + m.cardH) + 'px';
+  } else {
+    container.style.width = ((cards.length - 1) * spacing + m.cardW) + 'px';
+    container.style.height = m.cardH + 'px';
+  }
 }
 
 function doAITurn(seat, trickNumber) {
@@ -474,10 +491,8 @@ function doAITurn(seat, trickNumber) {
 
 export function toggleSkola() {
   skolaEnabled = !skolaEnabled;
-  const btn = document.getElementById('skola-btn');
-  if (btn) btn.classList.toggle('skola-active', skolaEnabled);
   const hintBtn = document.getElementById('hint-btn');
-  if (hintBtn) hintBtn.classList.toggle('visible', skolaEnabled);
+  if (hintBtn) hintBtn.classList.toggle('skola-active', skolaEnabled);
   hideHint();
   hideMoveRating();
   if (game && game.state.phase === 'playing' && game.state.currentSeat === 'south') {
@@ -562,4 +577,51 @@ function hideMoveRating() {
   }
 }
 
+function showScoreHistory() {
+  if (handHistory.length === 0) return;
+
+  const existing = document.querySelector('.score-history-overlay');
+  if (existing) { existing.remove(); return; }
+
+  const isTeam = Array.isArray(handHistory[0].handScores);
+  let rows = '';
+
+  if (isTeam) {
+    rows = `<tr class="sh-header"><th>#</th><th>Mi</th><th>Vi</th><th>Σ Mi</th><th>Σ Vi</th></tr>`;
+    handHistory.forEach((h, i) => {
+      rows += `<tr>
+        <td>${i + 1}</td>
+        <td>${h.handScores[0]}</td>
+        <td>${h.handScores[1]}</td>
+        <td class="sh-total">${h.totalScores[0]}</td>
+        <td class="sh-total">${h.totalScores[1]}</td>
+      </tr>`;
+    });
+  } else {
+    const seats = Object.keys(handHistory[0].handScores);
+    const names = seats.map(s => getSeatName(s, game.state.config));
+    rows = `<tr class="sh-header"><th>#</th>${names.map(n => `<th>${n}</th>`).join('')}</tr>`;
+    handHistory.forEach((h, i) => {
+      rows += `<tr><td>${i + 1}</td>${seats.map(s =>
+        `<td>${h.handScores[s]} <span class="sh-total">(${h.totalScores[s]})</span></td>`
+      ).join('')}</tr>`;
+    });
+  }
+
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay score-history-overlay';
+  overlay.innerHTML = `
+    <div class="overlay-content score-history">
+      <h2>Rezultati po rukama</h2>
+      <table class="sh-table">${rows}</table>
+    </div>
+  `;
+
+  document.getElementById('game-table').appendChild(overlay);
+  setTimeout(() => overlay.classList.add('visible'), 50);
+  overlay.addEventListener('click', () => {
+    overlay.classList.remove('visible');
+    setTimeout(() => overlay.remove(), 300);
+  });
+}
 

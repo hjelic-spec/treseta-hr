@@ -31,14 +31,16 @@ export function showHandEndOverlay(handScores, totalScores, kapotTeam, lastTrick
     `;
   }
 
+  scoreHtml += `<p class="overlay-dismiss">Klikni za nastavak</p>`;
   overlay.innerHTML = `<div class="overlay-content">${scoreHtml}</div>`;
 
   document.getElementById('game-table').appendChild(overlay);
   setTimeout(() => overlay.classList.add('visible'), 50);
-  setTimeout(() => {
+
+  overlay.addEventListener('click', () => {
     overlay.classList.remove('visible');
     setTimeout(() => overlay.remove(), 300);
-  }, 2500);
+  });
 }
 
 export function showGameEndOverlay(data, onPlayAgain) {

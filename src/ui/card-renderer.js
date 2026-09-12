@@ -41,7 +41,7 @@ export function renderHand(container, cards, faceUp = true, legalPlays = null, o
     cards.forEach((card, i) => {
       const isLegal = !legalIds || legalIds.has(cardId(card));
       const el = createCardElement(card, true, isLegal && !!onCardClick);
-      if (!isLegal) el.classList.add('card-disabled');
+      if (!isLegal && qualityMap) el.classList.add('card-disabled');
       if (qualityMap && isLegal) {
         const q = qualityMap.get(cardId(card));
         if (q) el.classList.add(`card-q-${q}`);

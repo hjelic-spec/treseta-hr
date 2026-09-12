@@ -37,8 +37,7 @@ export function createTable(config = null) {
       </div>
       <div class="score-panel score-panel-individual" id="score-panel"></div>
       <div class="info-bar" id="info-bar"></div>
-      <button class="skola-btn" id="skola-btn" title="Škola - savjeti za igru">Škola</button>
-      <button class="hint-btn" id="hint-btn" title="Pokaži hint">?</button>
+      <button class="hint-btn" id="hint-btn" title="Škola - savjeti za igru">?</button>
       <div class="hint-panel" id="hint-panel"></div>
       <div class="move-rating" id="move-rating"></div>
     `;
@@ -56,11 +55,11 @@ export function createTable(config = null) {
         </div>
         <div class="player-zone player-east">
           <div class="player-label" id="label-east"></div>
-          <div class="hand-container hand-vertical" id="hand-east"></div>
+          <div class="hand-container" id="hand-east"></div>
         </div>
         <div class="player-zone player-west">
           <div class="player-label" id="label-west"></div>
-          <div class="hand-container hand-vertical" id="hand-west"></div>
+          <div class="hand-container" id="hand-west"></div>
         </div>
         <div class="trick-area" id="trick-area"></div>
         <div class="dealer-indicator" id="dealer-indicator"></div>
@@ -71,8 +70,7 @@ export function createTable(config = null) {
         <div class="score-team">Vi: <span id="score-1">0</span></div>
       </div>
       <div class="info-bar" id="info-bar"></div>
-      <button class="skola-btn" id="skola-btn" title="Škola - savjeti za igru">Škola</button>
-      <button class="hint-btn" id="hint-btn" title="Pokaži hint">?</button>
+      <button class="hint-btn" id="hint-btn" title="Škola - savjeti za igru">?</button>
       <div class="hint-panel" id="hint-panel"></div>
       <div class="move-rating" id="move-rating"></div>
     `;
