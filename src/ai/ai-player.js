@@ -2,7 +2,6 @@ import { CardMemory } from './memory.js';
 import { chooseCard } from './strategy.js';
 import { shouldSignal } from './signal-logic.js';
 import { partnerSeat } from '../core/constants.js';
-import { detectDeclarations } from '../core/declarations.js';
 
 export class AIPlayer {
   constructor(seat, playerCount = 4) {
@@ -34,9 +33,5 @@ export class AIPlayer {
   decideSignal(hand, cardToPlay) {
     if (!cardToPlay) return null;
     return shouldSignal(hand, cardToPlay);
-  }
-
-  decideDeclarations(hand) {
-    return detectDeclarations(hand);
   }
 }

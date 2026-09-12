@@ -1,5 +1,4 @@
 import { MESSAGES, SEAT_NAMES, getSeatName } from './locale.js';
-import { SUIT_DISPLAY, RANK_DISPLAY } from '../core/constants.js';
 
 export function showHandEndOverlay(handScores, totalScores, kapotTeam, lastTrickWinner, config = null) {
   const overlay = document.createElement('div');
@@ -94,31 +93,6 @@ export function showGameEndOverlay(data, onPlayAgain) {
     overlay.remove();
     onPlayAgain('lobby');
   });
-}
-
-export function showDeclarations(declarations) {
-  const bar = document.getElementById('info-bar');
-  if (!bar) return;
-
-  const texts = declarations.map(d => {
-    const seatName = SEAT_NAMES[d.seat];
-    const declTexts = d.declarations.map(decl => {
-      if (decl.type === 'napolitana') {
-        return MESSAGES.napolitana(SUIT_DISPLAY[decl.suit]);
-      } else if (decl.type === 'three_of_kind') {
-        return MESSAGES.threeOfKind(RANK_DISPLAY[decl.rank]);
-      } else {
-        return MESSAGES.fourOfKind(RANK_DISPLAY[decl.rank]);
-      }
-    });
-    return `${seatName}: ${declTexts.join(', ')} (+${d.points})`;
-  });
-
-  if (texts.length > 0) {
-    bar.textContent = texts.join(' | ');
-    bar.classList.add('visible');
-    setTimeout(() => bar.classList.remove('visible'), 4000);
-  }
 }
 
 export function highlightCurrentPlayer(seat) {

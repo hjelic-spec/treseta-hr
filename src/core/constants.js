@@ -68,11 +68,6 @@ export const PHASES = {
   GAME_END: 'game_end'
 };
 
-export const VARIANTS = {
-  DUBROVNIK: 'dubrovnik',
-  U_MANJE: 'u_manje'
-};
-
 export const VARIANT_CONFIG = {
   dubrovnik: { declarationsEnabled: false, targetScore: 41, playerCount: 4, teamPlay: true, uManje: false },
   u_manje: { declarationsEnabled: false, targetScore: 101, playerCount: 5, teamPlay: false, uManje: true }

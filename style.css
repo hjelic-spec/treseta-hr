@@ -283,11 +283,6 @@ html, body {
   box-shadow: none;
 }
 
-.card-back-small {
-  position: absolute;
-  left: 0;
-}
-
 /* Trick Area - positioned cards in front of each player */
 .trick-area {
   position: absolute;
@@ -949,9 +944,6 @@ html, body {
   .player-east,
   .five-players .player-southeast,
   .five-players .player-northeast { right: 5px; }
-
-  .hand-vertical { width: 80px; }
-  .card-back-small svg { width: 80px; height: 70px; }
 
   .player-label { font-size: 0.72rem; }
 

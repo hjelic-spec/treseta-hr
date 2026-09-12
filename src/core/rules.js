@@ -18,12 +18,6 @@ export function determineTrickWinner(trick) {
   return winner.seat;
 }
 
-export function detectCheat(hand, playedCard, ledSuit) {
-  if (!ledSuit) return false;
-  if (playedCard.suit === ledSuit) return false;
-  return hand.some(c => c.suit === ledSuit);
-}
-
-export function canSignal(seat, currentTrick) {
+export function canSignal(currentTrick) {
   return currentTrick.length === 0;
 }

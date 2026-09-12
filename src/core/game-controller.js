@@ -1,4 +1,4 @@
-import { SEATS, SEATS_5, PHASES, teamOf, nextSeat, getSeats, getNextSeat } from './constants.js';
+import { PHASES, teamOf, getSeats, getNextSeat } from './constants.js';
 import { cardId, sortHand } from './card.js';
 import { deal } from './deck.js';
 import { getLegalPlays, determineTrickWinner, canSignal } from './rules.js';
@@ -134,7 +134,7 @@ export class GameController {
     const s = this.state;
     if (!s.config.teamPlay) return false;
     if (seat !== s.currentSeat) return false;
-    if (!canSignal(seat, s.currentTrick)) return false;
+    if (!canSignal(s.currentTrick)) return false;
     if (s.trickNumber === 0) return false;
 
     const suit = s.ledSuit || (s.currentTrick.length > 0 ? s.currentTrick[0].card.suit : null);
@@ -294,19 +294,6 @@ export class GameController {
       }
     }
     return false;
-  }
-
-  _handleCheat(seat) {
-    if (this.isTeamPlay) {
-      const team = teamOf(seat);
-      const otherTeam = 1 - team;
-      this.state.scores[otherTeam] += 11;
-    } else {
-      this.state.scores[seat] += 11;
-    }
-    this.bus.emit('cheat-detected', { seat });
-
-    if (this._checkGameEnd()) return;
   }
 
   getLegalPlaysForCurrentSeat() {

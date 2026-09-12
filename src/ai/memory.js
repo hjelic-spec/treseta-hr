@@ -1,4 +1,4 @@
-import { SUITS, RANKS, RANK_POWER, SEATS, SEATS_5 } from '../core/constants.js';
+import { RANKS, SEATS, SEATS_5 } from '../core/constants.js';
 import { createCard } from '../core/card.js';
 
 export class CardMemory {
@@ -31,10 +31,6 @@ export class CardMemory {
     return this.playedSet.has(`${card.rank}-${card.suit}`);
   }
 
-  getPlayedInSuit(suit) {
-    return this.played.filter(p => p.card.suit === suit).map(p => p.card);
-  }
-
   getRemainingInSuit(suit) {
     const remaining = [];
     for (const rank of RANKS) {
@@ -50,9 +46,4 @@ export class CardMemory {
     return this.seatVoids[seat].has(suit);
   }
 
-  getHighestRemainingInSuit(suit) {
-    const remaining = this.getRemainingInSuit(suit);
-    if (remaining.length === 0) return null;
-    return remaining.sort((a, b) => RANK_POWER[b.rank] - RANK_POWER[a.rank])[0];
-  }
 }

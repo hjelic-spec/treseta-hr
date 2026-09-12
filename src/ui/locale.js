@@ -7,8 +7,6 @@ export const SEAT_NAMES = {
   northeast: 'Desno 2'
 };
 
-export const TEAM_NAMES = ['Mi', 'Vi'];
-
 export const SIGNAL_LABELS = {
   tucem: 'Tučem',
   striso: 'Strišo'

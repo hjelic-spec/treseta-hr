@@ -34,10 +34,14 @@ export function findCurrentWinner(currentTrick, ledSuit) {
   return winner;
 }
 
+export function cardValue(card) {
+  return CARD_POINTS[card.rank].ponti * 3 + CARD_POINTS[card.rank].terzi;
+}
+
 export function pickLowestValue(cards) {
   return cards.sort((a, b) => {
-    const va = CARD_POINTS[a.rank].ponti * 3 + CARD_POINTS[a.rank].terzi;
-    const vb = CARD_POINTS[b.rank].ponti * 3 + CARD_POINTS[b.rank].terzi;
+    const va = cardValue(a);
+    const vb = cardValue(b);
     if (va !== vb) return va - vb;
     return RANK_POWER[a.rank] - RANK_POWER[b.rank];
   })[0];

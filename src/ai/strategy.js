@@ -1,6 +1,6 @@
 import { RANK_POWER, CARD_POINTS, teamOf, partnerSeat, SUITS } from '../core/constants.js';
 import { getLegalPlays } from '../core/rules.js';
-import { TOP_RANKS, isMaster, getOpponents, pickLowestValue, findCurrentWinner } from './ai-utils.js';
+import { TOP_RANKS, isMaster, getOpponents, pickLowestValue, findCurrentWinner, cardValue } from './ai-utils.js';
 
 export function chooseCard(seat, hand, gameState, memory, partnerSignal) {
   const { currentTrick, ledSuit } = gameState;
@@ -112,11 +112,7 @@ function chooseFollow(seat, legalPlays, gameState, memory, partnerSignal) {
           return pts.ponti > 0 || pts.terzi > 0;
         });
         if (pointCards.length > 0) {
-          return pointCards.sort((a, b) => {
-            const pa = CARD_POINTS[a.rank].ponti * 3 + CARD_POINTS[a.rank].terzi;
-            const pb = CARD_POINTS[b.rank].ponti * 3 + CARD_POINTS[b.rank].terzi;
-            return pb - pa;
-          })[0];
+          return pointCards.sort((a, b) => cardValue(b) - cardValue(a))[0];
         }
       }
 
@@ -164,11 +160,6 @@ function pickHighestValue(cards) {
     if (va !== vb) return vb - va;
     return RANK_POWER[b.rank] - RANK_POWER[a.rank];
   })[0];
-}
-
-function cardValue(card) {
-  if (card.rank === 1 && card.suit === 'bate') return 33;
-  return CARD_POINTS[card.rank].ponti * 3 + CARD_POINTS[card.rank].terzi;
 }
 
 function chooseLeadUManje(seat, legalPlays, hand, memory, gameState) {

@@ -1,4 +1,4 @@
-import { SEAT_NAMES } from './locale.js';
+import { getSeatName } from './locale.js';
 
 export function createTable(config = null) {
   const table = document.createElement('div');
@@ -32,7 +32,6 @@ export function createTable(config = null) {
           <div class="hand-container hand-vertical" id="hand-west"></div>
         </div>
         <div class="trick-area" id="trick-area"></div>
-        <div class="dealer-indicator" id="dealer-indicator"></div>
         <div class="signal-display" id="signal-display"></div>
       </div>
       <div class="score-panel score-panel-individual" id="score-panel"></div>
@@ -62,7 +61,6 @@ export function createTable(config = null) {
           <div class="hand-container" id="hand-west"></div>
         </div>
         <div class="trick-area" id="trick-area"></div>
-        <div class="dealer-indicator" id="dealer-indicator"></div>
         <div class="signal-display" id="signal-display"></div>
       </div>
       <div class="score-panel" id="score-panel">
@@ -83,8 +81,7 @@ export function updatePlayerLabels(playerTypes, dealerSeat, config = null) {
   Object.keys(playerTypes).forEach(seat => {
     const label = document.getElementById(`label-${seat}`);
     if (!label) return;
-    let name = SEAT_NAMES[seat] || seat;
-    if (!isTeam && seat === 'north') name = 'Gore';
+    let name = getSeatName(seat, config);
     const isDealer = seat === dealerSeat;
     const typeLabel = playerTypes[seat] === 'human' ? '' : ' 🤖';
     label.textContent = name + typeLabel + (isDealer ? ' 🃏' : '');
@@ -103,8 +100,7 @@ export function updateScores(scores, config = null) {
     const isTeam = config && config.teamPlay;
     const entries = Object.entries(scores).sort((a, b) => a[1] - b[1]);
     panel.innerHTML = entries.map(([seat, score]) => {
-      let name = SEAT_NAMES[seat] || seat;
-      if (!isTeam && seat === 'north') name = 'Gore';
+      let name = getSeatName(seat, config);
       return `<div class="score-individual"><span class="score-name">${name}</span><span class="score-value">${score}</span></div>`;
     }).join('');
   }

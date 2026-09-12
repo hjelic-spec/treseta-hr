@@ -1,4 +1,4 @@
-import { renderCardSVG, renderCardBack, renderCardBackSmall } from './card-sprites.js';
+import { renderCardSVG, renderCardBack } from './card-sprites.js';
 import { cardId, cardDisplayName } from '../core/card.js';
 
 export function createCardElement(card, faceUp = true, clickable = false) {

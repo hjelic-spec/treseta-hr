@@ -1,6 +1,6 @@
 import { RANK_POWER, CARD_POINTS, teamOf, partnerSeat } from '../core/constants.js';
 import { getLegalPlays } from '../core/rules.js';
-import { TOP_RANKS, isMaster, getOpponents, findCurrentWinner } from './ai-utils.js';
+import { TOP_RANKS, isMaster, getOpponents, findCurrentWinner, cardValue } from './ai-utils.js';
 
 export function analyzeHand(seat, hand, gameState, memory) {
   const { currentTrick, ledSuit } = gameState;
@@ -137,7 +137,7 @@ function evaluateFollow(card, seat, hand, gameState, memory) {
   if (partnerIsWinning) {
     if (followingSuit) {
       if (isLastToPlay) {
-        const pts = CARD_POINTS[card.rank].ponti * 3 + CARD_POINTS[card.rank].terzi;
+        const pts = cardValue(card);
         if (pts > 0) {
           score += 20 + pts * 5;
           reasons.push('Daj bodove partneru - sigurna ruka');
@@ -151,7 +151,7 @@ function evaluateFollow(card, seat, hand, gameState, memory) {
         reasons.push('Ne troši jaču kartu kad partner već drži');
       }
     } else {
-      const pts = CARD_POINTS[card.rank].ponti * 3 + CARD_POINTS[card.rank].terzi;
+      const pts = cardValue(card);
       if (pts === 0) {
         score += 15;
         reasons.push('Baci lišo - partner drži ruku');
@@ -193,7 +193,7 @@ function evaluateFollow(card, seat, hand, gameState, memory) {
         }
       }
     } else {
-      const pts = CARD_POINTS[card.rank].ponti * 3 + CARD_POINTS[card.rank].terzi;
+      const pts = cardValue(card);
       if (pts === 0) {
         score += 15;
         reasons.push('Baci lišo kad nisi u boji');

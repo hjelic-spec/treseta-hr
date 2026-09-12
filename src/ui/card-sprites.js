@@ -20,13 +20,3 @@ export function renderCardBack(width = 140, height = 252) {
   </svg>`;
 }
 
-export function renderCardBackSmall(width = 100, height = 88) {
-  return `<svg viewBox="0 0 50 44" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="1" y="1" width="48" height="42" rx="4" fill="#1a4a8a" stroke="#0e3366" stroke-width="1"/>
-    <rect x="3" y="3" width="44" height="38" rx="3" fill="none" stroke="#c9a84c" stroke-width="0.5" opacity="0.6"/>
-    <pattern id="ps-back" width="10" height="10" patternUnits="userSpaceOnUse">
-      <path d="M0,5 L5,0 L10,5 L5,10 Z" fill="none" stroke="#c9a84c" stroke-width="0.4" opacity="0.25"/>
-    </pattern>
-    <rect x="3" y="3" width="44" height="38" rx="3" fill="url(#ps-back)"/>
-  </svg>`;
-}

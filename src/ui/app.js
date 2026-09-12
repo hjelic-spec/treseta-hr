@@ -85,6 +85,7 @@ function clearGame() {
   }
   aiPlayers = {};
   playerMemory = null;
+  handHistory = [];
 }
 
 function showLobby() {
@@ -401,10 +402,10 @@ function renderAllHands() {
   const state = game.state;
 
   if (state.config.playerCount === 5) {
-    renderHand(document.getElementById('hand-north'), state.hands.north, false);
-    renderEWHand('hand-southeast', state.hands.southeast);
-    renderEWHand('hand-northeast', state.hands.northeast);
-    renderEWHand('hand-west', state.hands.west);
+    renderBotHand('hand-north', state.hands.north, false);
+    renderBotHand('hand-southeast', state.hands.southeast, true);
+    renderBotHand('hand-northeast', state.hands.northeast, true);
+    renderBotHand('hand-west', state.hands.west, true);
   } else {
     renderBotHand('hand-north', state.hands.north, false);
     renderBotHand('hand-east', state.hands.east, true);
@@ -501,7 +502,7 @@ export function toggleSkola() {
   }
 }
 
-export function requestHint() {
+function requestHint() {
   if (!game || !skolaEnabled) return;
   const state = game.state;
   if (state.currentSeat !== 'south') return;
