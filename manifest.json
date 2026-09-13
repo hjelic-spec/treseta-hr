@@ -1,7 +1,7 @@
 {
   "name": "Treseta — Igra na karata",
   "short_name": "Treseta",
-  "description": "Igraj trešetu online besplatno! Tradicionalna dalmatinska kartaška igra s dubrovačkim pravilima i talijanskim kartama Triestine.",
+  "description": "Igraj tresetu online besplatno! Igra na karata s dubrovačkim pravilima i talijanskim kartama Triestine.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",

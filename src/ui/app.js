@@ -161,7 +161,7 @@ function showAbout() {
   page.innerHTML = `
     <div class="page-content">
       <h1 class="page-title">O igri</h1>
-      <p class="about-text">Trešeta (treseta) je tradicionalna kartaška igra popularna u Dalmaciji, posebno u Dubrovniku. Igra se u parovima s napolitanskim kartama.</p>
+      <p class="about-text">Treseta je igra na karata popularna u Dalmaciji, posebno u Dubrovniku. Igra se u parovima s talijanskim kartama Triestine.</p>
       <p class="about-text">Ova verzija donosi dubrovačka pravila igre u digitalni format, uključujući škola mod za učenje.</p>
       <div class="about-info">
         <p>Verzija: 1.0</p>
