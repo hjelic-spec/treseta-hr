@@ -1,4 +1,4 @@
-import { MESSAGES, SEAT_NAMES, getSeatName } from './locale.js';
+import { MESSAGES, getSeatName } from './locale.js';
 
 export function showHandEndOverlay(handScores, totalScores, kapotTeam, lastTrickWinner, config = null) {
   const overlay = document.createElement('div');

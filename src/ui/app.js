@@ -112,7 +112,7 @@ function showPravila() {
 
       <div class="rule-section">
         <h3>Karte</h3>
-        <p>Igra se s napolitanskim kartama (40 karata). Četiri boje: bastoni (štapi), kupe, spade (mačevi), dinari (novci). Vrijednosti: A, 2, 3, 4, 5, 6, 7, Fante, Kavaljer, Kralj.</p>
+        <p>Igra se s talijanskim kartama Triestine (40 karata). Četiri boje: Kupe, Bate, Špade, Dinari. Rang po snazi: Trica, Duja, As, Kralj, Konj, Fanat, 7, 6, 5, 4.</p>
       </div>
 
       <div class="rule-section">
@@ -132,7 +132,7 @@ function showPravila() {
 
       <div class="rule-section">
         <h3>Vrijednosti karata</h3>
-        <p>As = 1 ponat, Trojka = 1 bela, Dvojka = 1 bela, Kralj = 1 bela, Kavaljer = 1 bela, Fante = 1 bela. Ostale karte (4-7) nemaju bodovnu vrijednost. Zadnja ruka nosi 1 ponat.</p>
+        <p>As = 1 ponat. Trica, Duja, Kralj, Konj, Fanat = 1 bela (3 bele = 1 ponat). Karte 4-7 su lišo (0 bodova). Zadnja ruka (ultima) nosi 1 ponat.</p>
       </div>
 
       <div class="rule-section">
@@ -142,7 +142,7 @@ function showPravila() {
 
       <div class="rule-section">
         <h3>Signali</h3>
-        <p>Partneru se može signalizirati riječima: <strong>tučem</strong> — jak sam u ovoj boji, baci najjaču kartu da pokupim i vratim ti nazad. <strong>Strišo</strong> — imam još karata od ove boje, baci nešto da mi pokažeš u koju boju da dođem. Signali su vidljivi svima.</p>
+        <p>Partneru se može signalizirati riječima: <strong>Tučem</strong> — ubij najjačom kartom te boje i vrati mi istu boju. <strong>Strišo</strong> — imam još niskih karata ove boje. Signali su vidljivi svima.</p>
       </div>
     </div>
   `;
@@ -316,6 +316,7 @@ function wireEvents() {
       }
       hideMoveRating();
       renderSouthHand(data.legalPlays);
+      if (skolaEnabled) showHintPanel();
       showInfo(MESSAGES.yourTurn, 0);
     } else {
       const signalContainer = document.getElementById('signals-south');
@@ -499,14 +500,8 @@ export function toggleSkola() {
   if (game && game.state.phase === 'playing' && game.state.currentSeat === 'south') {
     const legalPlays = game.getLegalPlaysForCurrentSeat();
     renderSouthHand(legalPlays);
+    if (skolaEnabled) showHintPanel();
   }
-}
-
-function requestHint() {
-  if (!game || !skolaEnabled) return;
-  const state = game.state;
-  if (state.currentSeat !== 'south') return;
-  showHintPanel();
 }
 
 function showHintPanel() {

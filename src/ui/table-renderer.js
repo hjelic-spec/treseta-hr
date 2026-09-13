@@ -21,15 +21,15 @@ export function createTable(config = null) {
         </div>
         <div class="player-zone player-southeast">
           <div class="player-label" id="label-southeast"></div>
-          <div class="hand-container hand-vertical" id="hand-southeast"></div>
+          <div class="hand-container" id="hand-southeast"></div>
         </div>
         <div class="player-zone player-northeast">
           <div class="player-label" id="label-northeast"></div>
-          <div class="hand-container hand-vertical" id="hand-northeast"></div>
+          <div class="hand-container" id="hand-northeast"></div>
         </div>
         <div class="player-zone player-west">
           <div class="player-label" id="label-west"></div>
-          <div class="hand-container hand-vertical" id="hand-west"></div>
+          <div class="hand-container" id="hand-west"></div>
         </div>
         <div class="trick-area" id="trick-area"></div>
         <div class="signal-display" id="signal-display"></div>

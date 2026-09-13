@@ -18,6 +18,10 @@ export class AIPlayer {
 
   recordCard(seat, card, ledSuit) {
     this.memory.recordPlay(seat, card, ledSuit);
+    if (this.lastPartnerSignal && !this.lastPartnerSignal.suit
+        && seat === this.lastPartnerSignal.seat) {
+      this.lastPartnerSignal = { ...this.lastPartnerSignal, suit: card.suit };
+    }
   }
 
   recordSignal(signal) {

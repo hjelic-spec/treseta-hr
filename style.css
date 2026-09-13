@@ -402,21 +402,18 @@ html, body {
   border-radius: 8px;
   padding: 8px 14px;
   z-index: 15;
-}
-
-.score-team {
-  font-size: 0.9rem;
-  color: var(--text);
-  line-height: 1.6;
-}
-
-.score-panel {
   cursor: pointer;
   transition: background 0.2s;
 }
 
 .score-panel:hover {
   background: rgba(0,0,0,0.7);
+}
+
+.score-team {
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.6;
 }
 
 .score-team span {
