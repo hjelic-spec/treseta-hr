@@ -25,11 +25,9 @@ export function countHandScore(wonTricks, isLastTrickWinner, uManje = false) {
     totalTerzi += pts.terzi;
   }
 
+  totalPonti += Math.floor(totalTerzi / 3);
   if (isLastTrickWinner) {
     totalPonti += 1;
-    totalPonti += Math.ceil(totalTerzi / 3);
-  } else {
-    totalPonti += Math.floor(totalTerzi / 3);
   }
 
   return totalPonti;

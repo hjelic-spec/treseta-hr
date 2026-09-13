@@ -125,8 +125,8 @@ function solveTrick(hands, trick, trickNum, config, acc, alpha, beta, counter) {
 
 function fEval(acc, lastWinner) {
   const lt = teamOf(lastWinner);
-  const s0 = acc.p[0] + (lt === 0 ? 1 + Math.ceil(acc.t[0] / 3) : Math.floor(acc.t[0] / 3));
-  const s1 = acc.p[1] + (lt === 1 ? 1 + Math.ceil(acc.t[1] / 3) : Math.floor(acc.t[1] / 3));
+  const s0 = acc.p[0] + Math.floor(acc.t[0] / 3) + (lt === 0 ? 1 : 0);
+  const s1 = acc.p[1] + Math.floor(acc.t[1] / 3) + (lt === 1 ? 1 : 0);
   return s0 - s1;
 }
 
