@@ -1,5 +1,5 @@
 import { CardMemory } from './memory.js';
-import { chooseCard } from './strategy.js';
+import { perfectChooseCard } from './perfect-strategy.js';
 import { shouldSignal } from './signal-logic.js';
 import { partnerSeat } from '../core/constants.js';
 
@@ -31,7 +31,7 @@ export class AIPlayer {
   }
 
   decidePlay(hand, gameState) {
-    return chooseCard(this.seat, hand, gameState, this.memory, this.lastPartnerSignal);
+    return perfectChooseCard(this.seat, gameState.hands, gameState);
   }
 
   decideSignal(hand, cardToPlay) {
