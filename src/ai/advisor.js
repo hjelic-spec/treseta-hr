@@ -1,13 +1,25 @@
 import { RANK_POWER, CARD_POINTS, teamOf, partnerSeat } from '../core/constants.js';
 import { getLegalPlays } from '../core/rules.js';
 import { TOP_RANKS, isMaster, getOpponents, findCurrentWinner, cardValue } from './ai-utils.js';
+import { RANK_DISPLAY, SUIT_DISPLAY } from '../core/constants.js';
+
+function cName(card) {
+  return `${RANK_DISPLAY[card.rank]} ${SUIT_DISPLAY[card.suit]}`;
+}
+
+function pointDesc(card) {
+  const p = CARD_POINTS[card.rank];
+  if (p.ponti > 0) return 'nosi ponat';
+  if (p.terzi > 0) return 'nosi belu (3 bele = 1 ponat)';
+  return 'ne nosi bodove';
+}
 
 export function analyzeHand(seat, hand, gameState, memory) {
   const { currentTrick, ledSuit } = gameState;
   const legalPlays = getLegalPlays(hand, ledSuit);
 
   if (legalPlays.length <= 1) {
-    return legalPlays.map(c => ({ card: c, score: 100, reason: 'Jedina legalna karta.' }));
+    return legalPlays.map(c => ({ card: c, score: 100, reason: 'Jedina karta koju možeš odigrati.' }));
   }
 
   const isLeading = currentTrick.length === 0;
@@ -53,32 +65,33 @@ function evaluateLead(card, seat, hand, legalPlays, memory, gameState) {
   let score = 50;
   const reasons = [];
   const suit = card.suit;
+  const suitName = SUIT_DISPLAY[suit];
   const suitCards = hand.filter(c => c.suit === suit);
   const topInSuit = suitCards.filter(c => TOP_RANKS.includes(c.rank));
   const master = isMaster(card, memory, hand);
 
   if (master) {
     score += 30;
-    reasons.push('Master karta - najjača preostala u boji');
+    reasons.push(`Najjača preostala karta u ${suitName} — sigurno uzima štig`);
     if (CARD_POINTS[card.rank].ponti > 0) {
       score += 10;
-      reasons.push('Donosi ponat kao sigurna karta');
+      reasons.push('Donosi siguran ponat jer ju nitko ne može prebiti');
     }
   }
 
   if (topInSuit.length >= 2 && TOP_RANKS.includes(card.rank)) {
     score += 20;
-    reasons.push('Imaš 2+ vrha u ovoj boji - zvanje');
+    reasons.push(`Imaš ${topInSuit.length} vrha u ${suitName} — izvlačiš protivniku jake karte`);
   }
 
   if (suitCards.length >= 3 && !TOP_RANKS.includes(card.rank) && topInSuit.length >= 1) {
     score += 5;
-    reasons.push('Duga boja s vrhom - izvlačenje karata');
+    reasons.push(`Duga boja (${suitCards.length} karata) s vrhom — možeš izvlačiti karte protivniku`);
   }
 
   if (suitCards.length === 1 && !TOP_RANKS.includes(card.rank)) {
     score -= 10;
-    reasons.push('Sama niska karta - loše za vođenje');
+    reasons.push('Sama niska karta — lako je prebiju, bolje sačekati');
   }
 
   if (!TOP_RANKS.includes(card.rank) && !master) {
@@ -86,7 +99,7 @@ function evaluateLead(card, seat, hand, legalPlays, memory, gameState) {
     const higherOut = remaining.filter(c => RANK_POWER[c.rank] > RANK_POWER[card.rank]).length;
     if (higherOut >= 2) {
       score -= 15;
-      reasons.push('Previše jačih karata vani - rizik gubitka ruke');
+      reasons.push(`Još ${higherOut} jačih karata u igri — velika šansa da gubiš štig`);
     }
   }
 
@@ -95,30 +108,34 @@ function evaluateLead(card, seat, hand, legalPlays, memory, gameState) {
   const allVoid = opponents.every(o => memory.isVoidIn(o, suit));
   if (allVoid && suitCards.length > 0) {
     score -= 20;
-    reasons.push('Svi protivnici su bez ove boje');
+    reasons.push(`Protivnici nemaju ${suitName} — baci nešto u njihovoj boji`);
   }
 
   if (isTeamPlay) {
     const partnerVoid = memory.isVoidIn(partnerSeat(seat), suit);
     if (partnerVoid && !master) {
       score -= 10;
-      reasons.push('Partner nema ovu boju - ne može pomoći');
+      reasons.push('Partner nema ovu boju pa ti ne može pomoći');
     }
   }
 
   if (CARD_POINTS[card.rank].ponti > 0 && !master) {
     score -= 10;
-    reasons.push('Riskantan ponat - nije sigurna karta');
+    reasons.push('As bez zaštite — riskantan ponat koji lako gubiš');
   }
 
   if (!TOP_RANKS.includes(card.rank) && CARD_POINTS[card.rank].terzi === 0 && CARD_POINTS[card.rank].ponti === 0) {
     if (suitCards.length === 1) {
       score -= 5;
-      reasons.push('Lišo karta sama - ništa ne donosi');
+      reasons.push('Lišo karta (bez bodova) — ne donosi ništa');
     }
   }
 
-  return { score, reason: reasons.join('. ') || 'Standardni potez.' };
+  if (reasons.length === 0) {
+    reasons.push(`Standardan potez. ${cName(card)} ${pointDesc(card)}`);
+  }
+
+  return { score, reason: reasons.join('. ') + '.' };
 }
 
 function evaluateFollow(card, seat, hand, gameState, memory) {
@@ -134,30 +151,35 @@ function evaluateFollow(card, seat, hand, gameState, memory) {
   const isLastToPlay = currentTrick.length === trickSize - 1;
   const followingSuit = card.suit === ledSuit;
 
+  const winnerName = cName(currentWinner.card);
+
   if (partnerIsWinning) {
     if (followingSuit) {
       if (isLastToPlay) {
         const pts = cardValue(card);
         if (pts > 0) {
           score += 20 + pts * 5;
-          reasons.push('Daj bodove partneru - sigurna ruka');
+          reasons.push(`Partner drži štig — dodaj mu bodove (${pointDesc(card)})`);
+        } else {
+          score += 10;
+          reasons.push('Partner drži štig, ti si zadnji — slobodno baci nižu kartu');
         }
       }
       if (RANK_POWER[card.rank] < RANK_POWER[currentWinner.card.rank]) {
         score += 10;
-        reasons.push('Čuvaj jače karte - partner drži ruku');
+        reasons.push('Čuvaj jaču kartu za kasnije — partner već drži štig');
       } else {
         score -= 5;
-        reasons.push('Ne troši jaču kartu kad partner već drži');
+        reasons.push('Ne troši jaču kartu kad partner već pobjeđuje');
       }
     } else {
       const pts = cardValue(card);
       if (pts === 0) {
         score += 15;
-        reasons.push('Baci lišo - partner drži ruku');
+        reasons.push('Nemaš tu boju — baci lišo (kartu bez bodova)');
       } else {
         score -= 10;
-        reasons.push('Ne bacaj bodove kad nisi u boji');
+        reasons.push(`Nemaš tu boju, ali ova karta ${pointDesc(card)} — partneru ne možeš dodati jer nisi u boji`);
       }
     }
   } else {
@@ -165,10 +187,10 @@ function evaluateFollow(card, seat, hand, gameState, memory) {
       const canBeat = RANK_POWER[card.rank] > RANK_POWER[currentWinner.card.rank];
       if (canBeat) {
         score += 25;
-        reasons.push('Prebij protivnika');
+        reasons.push(`Jača od ${winnerName} — uzima štig protivniku`);
         if (isMaster(card, memory, hand)) {
           score += 10;
-          reasons.push('Master karta - sigurno uzimanje');
+          reasons.push('Najjača preostala u boji — sigurno uzimanje');
         }
         const legalBeaters = getLegalPlays(hand, ledSuit).filter(c =>
           c.suit === ledSuit && RANK_POWER[c.rank] > RANK_POWER[currentWinner.card.rank]
@@ -177,33 +199,36 @@ function evaluateFollow(card, seat, hand, gameState, memory) {
           const isLowest = legalBeaters.every(c => RANK_POWER[card.rank] <= RANK_POWER[c.rank]);
           if (isLowest) {
             score += 5;
-            reasons.push('Najmanja karta koja pobjeđuje - štedi jače');
+            reasons.push('Najmanja karta koja pobjeđuje — štedi jaču za kasnije');
           }
         }
       } else {
         if (CARD_POINTS[card.rank].ponti === 0 && CARD_POINTS[card.rank].terzi === 0) {
           score += 10;
-          reasons.push('Ne možeš prebiti - baci lišo');
+          reasons.push(`Slabija od ${winnerName} — baci lišo da ne daruješ bodove`);
         } else if (RANK_POWER[card.rank] <= 4) {
           score += 5;
-          reasons.push('Niska karta - minimalan gubitak');
+          reasons.push('Ne možeš prebiti — barem baci nižu kartu');
         } else {
           score -= 15;
-          reasons.push('Ne bacaj bodove protivniku');
+          reasons.push(`Ne možeš prebiti ${winnerName}, a ova karta ${pointDesc(card)} — poklanjanje bodova`);
         }
       }
     } else {
       const pts = cardValue(card);
       if (pts === 0) {
         score += 15;
-        reasons.push('Baci lišo kad nisi u boji');
+        reasons.push('Nemaš tu boju — baci kartu bez bodova');
       } else {
         score -= 15;
-        reasons.push('Ne bacaj bodove protivniku');
+        reasons.push(`Nemaš tu boju, a ova karta ${pointDesc(card)} — pokloniš bodove protivniku`);
       }
     }
   }
 
-  return { score, reason: reasons.join('. ') || 'Standardni potez.' };
-}
+  if (reasons.length === 0) {
+    reasons.push(`Standardan potez. ${cName(card)} ${pointDesc(card)}`);
+  }
 
+  return { score, reason: reasons.join('. ') + '.' };
+}

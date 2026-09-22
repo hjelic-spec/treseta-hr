@@ -519,11 +519,18 @@ function showHintPanel() {
 
   const qualityLabels = { best: 'Najbolji', good: 'Dobar', ok: 'OK', bad: 'Loš' };
 
-  let html = `<div class="hint-title">Preporuka</div>`;
-  html += `<div class="hint-card-name">${cardDisplayName(best.card)}</div>`;
+  const isLeading = state.currentTrick.length === 0;
+  const situation = isLeading
+    ? 'Ti vodiš — biraš boju za ovaj štig.'
+    : `Vođena boja: ${state.ledSuit ? state.ledSuit.charAt(0).toUpperCase() + state.ledSuit.slice(1) : '?'}`;
+
+  let html = `<div class="hint-title">💡 Savjet</div>`;
+  html += `<div class="hint-situation">${situation}</div>`;
+  html += `<div class="hint-card-name">▶ Odigraj: ${cardDisplayName(best.card)}</div>`;
   html += `<div class="hint-reason">${best.reason}</div>`;
 
   if (analyses.length > 1) {
+    html += `<div class="hint-others-title">Ostale opcije:</div>`;
     html += `<div class="hint-others">`;
     for (let i = 1; i < Math.min(analyses.length, 4); i++) {
       const a = analyses[i];
@@ -531,6 +538,7 @@ function showHintPanel() {
       html += `<div class="hint-other-card hint-q-${a.quality}">
         <span>${cardDisplayName(a.card)}</span>
         <span class="hint-quality">${ql}</span>
+        <div class="hint-other-reason">${a.reason}</div>
       </div>`;
     }
     html += `</div>`;
