@@ -33,8 +33,8 @@ export function renderHand(container, cards, faceUp = true, legalPlays = null, o
 
   if (faceUp) {
     const n = cards.length;
-    const fanRadius = m.cardW <= 84 ? 350 : m.cardW <= 100 ? 500 : 650;
-    const totalAngle = Math.min(n * 5, 55);
+    const fanRadius = m.cardW <= 84 ? 320 : m.cardW <= 100 ? 450 : 580;
+    const totalAngle = Math.min(n * 8, 80);
     const angleStep = n > 1 ? totalAngle / (n - 1) : 0;
     const startAngle = -totalAngle / 2;
 
