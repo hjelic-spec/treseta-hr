@@ -44,10 +44,14 @@ function chooseTeam(seat, allHands, gameState, legalPlays) {
     hands[seat].splice(idx, 0, card);
 
     if (isMax) {
-      if (val > bestVal) { bestVal = val; bestCard = card; }
+      if (val > bestVal || (val === bestVal && cVal(card) < cVal(bestCard))) {
+        bestVal = val; bestCard = card;
+      }
       if (val > alpha) alpha = val;
     } else {
-      if (val < bestVal) { bestVal = val; bestCard = card; }
+      if (val < bestVal || (val === bestVal && cVal(card) < cVal(bestCard))) {
+        bestVal = val; bestCard = card;
+      }
       if (val < beta) beta = val;
     }
     if (counter.n > MAX_NODES) break;
