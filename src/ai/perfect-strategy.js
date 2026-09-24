@@ -23,7 +23,10 @@ function chooseTeam(seat, allHands, gameState, legalPlays) {
   const trick = gameState.currentTrick.map(e => ({ seat: e.seat, card: e.card }));
   const counter = { n: 0 };
 
-  const ordered = sortMoves(legalPlays, isMax);
+  const isLeading = gameState.currentTrick.length === 0;
+  const ordered = isLeading
+    ? sortMoves(legalPlays, isMax)
+    : sortFollowMoves(legalPlays, gameState.currentTrick, gameState.ledSuit, isMax);
   let bestCard = ordered[0];
   let bestVal = isMax ? -100 : 100;
   let alpha = -100, beta = 100;
@@ -66,7 +69,9 @@ function ab(hands, trick, ledSuit, seat, trickNum, config, acc, alpha, beta, cou
   const legal = getLegalPlays(hands[seat], ledSuit);
   const isMax = teamOf(seat) === 0;
   const isLeading = trick.length === 0;
-  const moves = isLeading && legal.length > 2 ? sortMoves(legal, isMax) : legal;
+  const moves = legal.length > 1
+    ? (isLeading ? sortMoves(legal, isMax) : sortFollowMoves(legal, trick, ledSuit, isMax))
+    : legal;
 
   let best = isMax ? -100 : 100;
 
@@ -249,5 +254,25 @@ function sortMoves(plays, isMax) {
     const d = cVal(b) - cVal(a);
     if (d !== 0) return isMax ? d : -d;
     return isMax ? RANK_POWER[b.rank] - RANK_POWER[a.rank] : RANK_POWER[a.rank] - RANK_POWER[b.rank];
+  });
+}
+
+function sortFollowMoves(plays, trick, ledSuit, isMax) {
+  const w = winnerEntry(trick);
+  const winPower = RANK_POWER[w.card.rank];
+  const winTeam = teamOf(w.seat);
+  return [...plays].sort((a, b) => {
+    const aBeats = a.suit === ledSuit && RANK_POWER[a.rank] > winPower;
+    const bBeats = b.suit === ledSuit && RANK_POWER[b.rank] > winPower;
+    const partnerWins = winTeam === (isMax ? 0 : 1);
+    if (partnerWins) {
+      if (aBeats !== bBeats) return aBeats ? 1 : -1;
+      return cVal(a) - cVal(b);
+    }
+    if (aBeats !== bBeats) return aBeats ? -1 : 1;
+    if (aBeats && bBeats) {
+      return RANK_POWER[a.rank] - RANK_POWER[b.rank];
+    }
+    return cVal(a) - cVal(b);
   });
 }
