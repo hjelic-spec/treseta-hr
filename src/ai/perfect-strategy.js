@@ -25,11 +25,15 @@ function chooseTeam(seat, allHands, gameState, legalPlays) {
 
   const isLeading = gameState.currentTrick.length === 0;
   const ordered = isLeading
-    ? sortMoves(legalPlays, isMax)
+    ? sortLeadMoves(legalPlays, allHands, seat, isMax)
     : sortFollowMoves(legalPlays, gameState.currentTrick, gameState.ledSuit, isMax);
   let bestCard = ordered[0];
   let bestVal = isMax ? -100 : 100;
   let alpha = -100, beta = 100;
+
+  const partnerWins = !isLeading && trick.length > 0
+    && teamOf(winnerEntry(trick).seat) === teamOf(seat);
+  const tiePreferHigh = partnerWins;
 
   for (const card of ordered) {
     const idx = rmCard(hands[seat], card);
@@ -46,13 +50,17 @@ function chooseTeam(seat, allHands, gameState, legalPlays) {
     trick.pop();
     hands[seat].splice(idx, 0, card);
 
+    const tieBetter = tiePreferHigh
+      ? cVal(card) > cVal(bestCard)
+      : cVal(card) < cVal(bestCard);
+
     if (isMax) {
-      if (val > bestVal || (val === bestVal && cVal(card) < cVal(bestCard))) {
+      if (val > bestVal || (val === bestVal && tieBetter)) {
         bestVal = val; bestCard = card;
       }
       if (val > alpha) alpha = val;
     } else {
-      if (val < bestVal || (val === bestVal && cVal(card) < cVal(bestCard))) {
+      if (val < bestVal || (val === bestVal && tieBetter)) {
         bestVal = val; bestCard = card;
       }
       if (val < beta) beta = val;
@@ -70,7 +78,7 @@ function ab(hands, trick, ledSuit, seat, trickNum, config, acc, alpha, beta, cou
   const isMax = teamOf(seat) === 0;
   const isLeading = trick.length === 0;
   const moves = legal.length > 1
-    ? (isLeading ? sortMoves(legal, isMax) : sortFollowMoves(legal, trick, ledSuit, isMax))
+    ? (isLeading ? sortLeadMoves(legal, hands, seat, isMax) : sortFollowMoves(legal, trick, ledSuit, isMax))
     : legal;
 
   let best = isMax ? -100 : 100;
@@ -249,6 +257,29 @@ function cVal(card) {
   return p.ponti * 3 + p.terzi;
 }
 
+function sortLeadMoves(plays, allHands, seat, isMax) {
+  const myTeam = isMax ? 0 : 1;
+  return [...plays].sort((a, b) => {
+    const aExposed = isExposedAce(a, allHands, seat, myTeam);
+    const bExposed = isExposedAce(b, allHands, seat, myTeam);
+    if (aExposed !== bExposed) return aExposed ? 1 : -1;
+    const d = cVal(b) - cVal(a);
+    if (d !== 0) return isMax ? d : -d;
+    return isMax ? RANK_POWER[b.rank] - RANK_POWER[a.rank] : RANK_POWER[a.rank] - RANK_POWER[b.rank];
+  });
+}
+
+function isExposedAce(card, allHands, seat, myTeam) {
+  if (card.rank !== 1) return false;
+  for (const s in allHands) {
+    if (teamOf(s) === myTeam) continue;
+    for (const c of allHands[s]) {
+      if (c.suit === card.suit && RANK_POWER[c.rank] > RANK_POWER[1]) return true;
+    }
+  }
+  return false;
+}
+
 function sortMoves(plays, isMax) {
   return [...plays].sort((a, b) => {
     const d = cVal(b) - cVal(a);
@@ -267,7 +298,7 @@ function sortFollowMoves(plays, trick, ledSuit, isMax) {
     const partnerWins = winTeam === (isMax ? 0 : 1);
     if (partnerWins) {
       if (aBeats !== bBeats) return aBeats ? 1 : -1;
-      return cVal(a) - cVal(b);
+      return cVal(b) - cVal(a);
     }
     if (aBeats !== bBeats) return aBeats ? -1 : 1;
     if (aBeats && bBeats) {

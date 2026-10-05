@@ -1,17 +1,16 @@
 import { TOP_RANKS } from './ai-utils.js';
 
-export function shouldSignal(hand, ledCard) {
-  const suit = ledCard.suit;
-  const suitCards = hand.filter(c => c.suit === suit);
+export function shouldSignal(hand, cardToPlay) {
+  const suit = cardToPlay.suit;
+  const remaining = hand.filter(c => c.suit === suit && !(c.suit === cardToPlay.suit && c.rank === cardToPlay.rank));
 
-  const topInHand = suitCards.filter(c => TOP_RANKS.includes(c.rank));
-  const lowInHand = suitCards.filter(c => !TOP_RANKS.includes(c.rank));
+  const topInRemaining = remaining.filter(c => TOP_RANKS.includes(c.rank));
 
-  if (topInHand.length >= 2) {
+  if (topInRemaining.length >= 2) {
     return 'tucem';
   }
 
-  if (suitCards.length >= 3 && lowInHand.length >= 2) {
+  if (remaining.length === 0) {
     return 'striso';
   }
 
