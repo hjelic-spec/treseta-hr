@@ -292,17 +292,24 @@ function sortFollowMoves(plays, trick, ledSuit, isMax) {
   const w = winnerEntry(trick);
   const winPower = RANK_POWER[w.card.rank];
   const winTeam = teamOf(w.seat);
+  const partnerWins = winTeam === (isMax ? 0 : 1);
   return [...plays].sort((a, b) => {
-    const aBeats = a.suit === ledSuit && RANK_POWER[a.rank] > winPower;
-    const bBeats = b.suit === ledSuit && RANK_POWER[b.rank] > winPower;
-    const partnerWins = winTeam === (isMax ? 0 : 1);
+    const aFollow = a.suit === ledSuit;
+    const bFollow = b.suit === ledSuit;
+    const aBeats = aFollow && RANK_POWER[a.rank] > winPower;
+    const bBeats = bFollow && RANK_POWER[b.rank] > winPower;
+
     if (partnerWins) {
       if (aBeats !== bBeats) return aBeats ? 1 : -1;
       return cVal(b) - cVal(a);
     }
+
     if (aBeats !== bBeats) return aBeats ? -1 : 1;
     if (aBeats && bBeats) {
       return RANK_POWER[a.rank] - RANK_POWER[b.rank];
+    }
+    if (aFollow !== bFollow) {
+      return aFollow ? -1 : 1;
     }
     return cVal(a) - cVal(b);
   });
