@@ -3,15 +3,23 @@ import { getLegalPlays } from '../core/rules.js';
 import { countTrickPoints } from '../core/scoring.js';
 
 const MAX_NODES = 2_000_000;
+function filterDiscards(legal, ledSuit, trick, seat) {
+  if (!ledSuit || legal.length < 2 || legal[0].suit === ledSuit) return legal;
+  const partnerWins = trick.length > 0 && teamOf(winnerEntry(trick).seat) === teamOf(seat);
+  const safe = legal.filter(c => c.rank !== 3 && c.rank !== 2 && (c.rank !== 1 || partnerWins));
+  return safe.length > 0 ? safe : legal;
+}
 
 export function perfectChooseCard(seat, allHands, gameState) {
   const config = gameState.config;
-  const legalPlays = getLegalPlays(allHands[seat], gameState.ledSuit);
-  if (legalPlays.length === 1) return legalPlays[0];
+  const allLegal = getLegalPlays(allHands[seat], gameState.ledSuit);
+  if (allLegal.length === 1) return allLegal[0];
 
   if (config.uManje) {
-    return chooseUManje(seat, allHands, gameState, legalPlays);
+    return chooseUManje(seat, allHands, gameState, allLegal);
   }
+  const legalPlays = filterDiscards(allLegal, gameState.ledSuit, gameState.currentTrick, seat);
+  if (legalPlays.length === 1) return legalPlays[0];
   return chooseTeam(seat, allHands, gameState, legalPlays);
 }
 
@@ -74,7 +82,7 @@ function chooseTeam(seat, allHands, gameState, legalPlays) {
 function ab(hands, trick, ledSuit, seat, trickNum, config, acc, alpha, beta, counter) {
   if (++counter.n > MAX_NODES) return qEval(acc);
 
-  const legal = getLegalPlays(hands[seat], ledSuit);
+  const legal = filterDiscards(getLegalPlays(hands[seat], ledSuit), ledSuit, trick, seat);
   const isMax = teamOf(seat) === 0;
   const isLeading = trick.length === 0;
   const moves = legal.length > 1
